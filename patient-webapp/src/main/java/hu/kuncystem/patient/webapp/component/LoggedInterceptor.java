@@ -31,7 +31,7 @@ public class LoggedInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-
+        
         //get current auth data
         //if the user is not loggeed then the name is: anonymousUser
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

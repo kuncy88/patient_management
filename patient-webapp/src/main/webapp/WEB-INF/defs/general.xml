@@ -35,6 +35,12 @@
 		<put-attribute name="body" value="/WEB-INF/view/usermanager.jsp" />
 	</definition>
 	
+	<definition name="useredit" extends="common">
+		<put-attribute name="title" value="PatientManagement - User Edit" />
+		<put-attribute name="navbar" value="/WEB-INF/view/navbar.jsp" />
+		<put-attribute name="body" value="/WEB-INF/view/useredit.jsp" />
+	</definition>
+	
 	<definition name="mycalendar" extends="common">
 		<put-attribute name="title" value="PatientManagement - Calendar" />
 		<put-attribute name="navbar" value="/WEB-INF/view/navbar.jsp" />
