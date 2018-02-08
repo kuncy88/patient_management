@@ -78,7 +78,7 @@ public class UserDaoTest {
         user = userDao.getUser("teszt");
         assertNotNull(user);
     }
-    
+
     @Test
     public void stage32_schouldGetAllUsers() {
         // get user by name

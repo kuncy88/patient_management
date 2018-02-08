@@ -64,7 +64,7 @@ public class JDBCUserGroupDao implements UserGroupDao {
     private static final String SQL_INSERT_GROUP_RELATION = "INSERT INTO user_group_relation (user_group_id, users_id) VALUES (?,?);";
 
     private static final String SQL_FIND_GROUP_BY_ID = "SELECT * FROM user_group WHERE id = ?;";
-    
+
     private static final String SQL_FIND_GROUP_BY_NAME = "SELECT * FROM user_group WHERE name = ?;";
 
     @Autowired
@@ -96,14 +96,15 @@ public class JDBCUserGroupDao implements UserGroupDao {
             throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_FIND_GROUP_BY_ID, e);
         }
     }
-    
+
     public UserGroup getUserGroup(String name) throws DatabaseException {
         try {
             return jdbc.queryForObject(SQL_FIND_GROUP_BY_NAME, new UserGroupRowMapper(), name);
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (DataAccessException e) {
-            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_FIND_GROUP_BY_NAME, e);
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_FIND_GROUP_BY_NAME,
+                    e);
         }
     }
 

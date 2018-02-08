@@ -27,6 +27,23 @@ public interface UserDao {
     public boolean deleteUser(User user) throws DatabaseException;
 
     /**
+     * Get all of users from the database without condition.
+     *
+     * @param limit
+     *            How many users do we want to get. If it is -1 then we won't
+     *            use the limit.
+     * @param offset
+     *            Where from we want to get. If it is -1 then we won't use the
+     *            offset.
+     * @param order
+     *            This is the column which we can order the result.
+     * @return Object.List object which contains User objects.
+     * @throws DatabaseException
+     *             if the query fails
+     */
+    public List<User> getAllUsers(int limit, int offset, String order);
+
+    /**
      * Get one row from the database.
      *
      * @param id
@@ -62,21 +79,6 @@ public interface UserDao {
      *             if the query fails
      */
     public User getUser(String name, String password) throws DatabaseException;
-    
-    /**
-     * Get all of users from the database without condition.
-     *
-     * @param limit
-     *            How many users do we want to get. If it is -1 then we won't use the limit.
-     * @param offset
-     *            Where from we want to get. If it is -1 then we won't use the offset.
-     * @param order
-     *            This is the column which we can order the result.
-     * @return Object.List object which contains User objects.
-     * @throws DatabaseException
-     *             if the query fails
-     */
-    public List<User> getAllUsers(int limit, int offset, String order);
 
     /**
      * Insert new user into the database.

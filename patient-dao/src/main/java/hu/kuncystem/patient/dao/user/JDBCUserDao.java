@@ -31,11 +31,6 @@ import hu.kuncystem.patient.pojo.user.UserFactory;
  */
 @Repository
 public class JDBCUserDao implements UserDao {
-    /**
-     * This is the username field of the users table
-     * */
-    public static final String ORDER_BY_USERNAME = "u.user_name";
-    
     public static class UserRowMapper implements RowMapper<User> {
         private final UserFactory userFactory = new UserFactory();
 
@@ -49,7 +44,7 @@ public class JDBCUserDao implements UserDao {
         public User mapRow(ResultSet rs, int row) throws SQLException {
             // get an object of User by group name
             String group = rs.getString("group_name");
-            if(group == null){
+            if (group == null) {
                 group = UserFactory.DEFAULT;
             }
             User u = userFactory.getUser(group.toUpperCase());
@@ -65,16 +60,20 @@ public class JDBCUserDao implements UserDao {
         }
 
     }
-    
-    private static final String SQL_FIND = "SELECT " + "u.*, COALESCE(MIN(ug.name), '') AS group_name " + "FROM users u "
-            + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
+
+    /**
+     * This is the username field of the users table
+     */
+    public static final String ORDER_BY_USERNAME = "u.user_name";
+
+    private static final String SQL_FIND = "SELECT " + "u.*, COALESCE(MIN(ug.name), '') AS group_name "
+            + "FROM users u " + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
             + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id AND ug.name IN ('Patient','Doctor'))"
             + "WHERE $CONDITION$ GROUP BY u.id;";
-    
-    private static final String SQL_FIND_ALL = "SELECT " + "u.*, GROUP_CONCAT(ug.name SEPARATOR ', ') AS group_name " + "FROM users u "
-            + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
-            + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id) "
-            + "GROUP BY u.id";
+
+    private static final String SQL_FIND_ALL = "SELECT " + "u.*, GROUP_CONCAT(ug.name SEPARATOR ', ') AS group_name "
+            + "FROM users u " + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
+            + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id) " + "GROUP BY u.id";
 
     private static final String SQL_INSERT = "INSERT INTO users (user_name, passw, fullname, email, active) VALUES (?, ?, ?, ?, ?);";
 
@@ -91,6 +90,24 @@ public class JDBCUserDao implements UserDao {
             return (num > 0) ? true : false;
         } catch (DataAccessException e) {
             throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_DELETE, e);
+        }
+    }
+
+    public List<User> getAllUsers(int limit, int offset, String order) {
+        String sql = SQL_FIND_ALL;
+        if (order != null) {
+            sql += " ORDER BY " + order;
+        }
+        if (limit > -1) {
+            sql += " LIMIT " + limit;
+        }
+        if (offset > -1) {
+            sql += " OFFSET " + offset;
+        }
+        try {
+            return jdbc.query(sql, new UserRowMapper());
+        } catch (DataAccessException e) {
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }
     }
 
@@ -122,24 +139,6 @@ public class JDBCUserDao implements UserDao {
             return jdbc.queryForObject(sql, new UserRowMapper(), name, password);
         } catch (EmptyResultDataAccessException e) {
             return null;
-        } catch (DataAccessException e) {
-            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
-        }
-    }
-    
-    public List<User> getAllUsers(int limit, int offset, String order){
-        String sql = SQL_FIND_ALL;
-        if(order != null){
-            sql += " ORDER BY " + order;
-        }
-        if(limit > -1){
-            sql += " LIMIT " + limit;
-        }
-        if(offset > -1){
-            sql += " OFFSET " + offset;
-        }
-        try {
-            return jdbc.query(sql, new UserRowMapper());
         } catch (DataAccessException e) {
             throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }

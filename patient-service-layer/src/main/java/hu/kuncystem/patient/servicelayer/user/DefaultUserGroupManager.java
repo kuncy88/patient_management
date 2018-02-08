@@ -74,6 +74,31 @@ public class DefaultUserGroupManager implements UserGroupManager {
         return userGroupDao.getAllUserFromGroup(group);
     }
 
+    @Transactional
+    public boolean saveRelation(long userId, List<String> groupList) {
+        boolean ok = true;
+
+        UserGroup group;
+        if (groupList != null) {
+            for (String groupName : groupList) {
+                group = userGroupDao.getUserGroup(groupName);
+                // the group not found
+                if (group == null) {
+                    ok = false;
+                    break;
+                } else {
+                    ok = this.saveRelation(userId, group.getId());
+                }
+                // itt happend an error
+                if (ok == false) {
+                    break;
+                }
+            }
+        }
+        return ok;
+
+    }
+
     public boolean saveRelation(long userId, long groupId) {
         // user POJO object
         User user = userFactory.getUser(UserFactory.DEFAULT);
@@ -87,31 +112,6 @@ public class DefaultUserGroupManager implements UserGroupManager {
         } catch (DatabaseException e) {
             return false;
         }
-    }
-    
-    @Transactional
-    public boolean saveRelation(long userId, List<String> groupList) {
-        boolean ok = true;
-
-        UserGroup group;
-        if(groupList != null){
-            for(String groupName: groupList){
-                group = userGroupDao.getUserGroup(groupName);
-                //the group not found
-                if(group == null){
-                    ok = false;
-                    break;
-                }else{
-                    ok = this.saveRelation(userId, group.getId());
-                }
-                //itt happend an error
-                if(ok == false){
-                    break;
-                }
-            }
-        }
-        return ok;
-        
     }
 
 }

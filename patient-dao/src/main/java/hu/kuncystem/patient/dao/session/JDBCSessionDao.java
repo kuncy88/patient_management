@@ -126,7 +126,7 @@ public class JDBCSessionDao implements SessionDao {
 
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
                         Session session = sessions.get(i);
-                        
+
                         ps.setLong(1, session.getUserId());
                         ps.setString(2, session.getIp());
                         ps.setString(3, session.getUserAgent());
