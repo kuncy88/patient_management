@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hu.kuncystem.patient.dao.exception.DatabaseException;
 import hu.kuncystem.patient.dao.user.UserGroupDao;
@@ -86,6 +87,31 @@ public class DefaultUserGroupManager implements UserGroupManager {
         } catch (DatabaseException e) {
             return false;
         }
+    }
+    
+    @Transactional
+    public boolean saveRelation(long userId, List<String> groupList) {
+        boolean ok = true;
+
+        UserGroup group;
+        if(groupList != null){
+            for(String groupName: groupList){
+                group = userGroupDao.getUserGroup(groupName);
+                //the group not found
+                if(group == null){
+                    ok = false;
+                    break;
+                }else{
+                    ok = this.saveRelation(userId, group.getId());
+                }
+                //itt happend an error
+                if(ok == false){
+                    break;
+                }
+            }
+        }
+        return ok;
+        
     }
 
 }

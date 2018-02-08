@@ -52,6 +52,7 @@ public class DefaultUserManager implements UserManager {
             user = userDao.saveUser(user);
         } catch (DatabaseException e) {
             e.printStackTrace();
+            return null;
         }
         return user;
     }

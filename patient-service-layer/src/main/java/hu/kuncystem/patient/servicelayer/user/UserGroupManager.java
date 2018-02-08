@@ -83,4 +83,17 @@ public interface UserGroupManager {
      */
     @Transactional
     public boolean saveRelation(long userId, long groupId);
+
+    /**
+     * Create a relation between a group and a user.
+     *
+     * @param userId
+     *            This is the unique user id. This id identifies one row in User
+     *            table.
+     * @param groupList
+     *            This is the list of group name.
+     * @return will return true for success otherwise it will return false.
+     */
+    @Transactional
+    public boolean saveRelation(long userId, List<String> groupList);
 }
