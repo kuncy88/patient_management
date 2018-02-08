@@ -1,6 +1,13 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<c:if test="${not empty message}">
+	<div class='alert alert-${cls}'>${message}</div>
+</c:if>
+
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<a href="/usermanager?page=useredit">
+		<a href="/usermanager/addUser">
 			<button type="button" class="btn btn-success">
 				<span class="glyphicon glyphicon-pencil"></span> New user
 			</button>

@@ -1,9 +1,0 @@
-hu\kuncystem\patient\pojo\user\Patient.class
-hu\kuncystem\patient\pojo\user\UserGroupRelation.class
-hu\kuncystem\patient\pojo\user\UserGroup.class
-hu\kuncystem\patient\pojo\appointment\Appointment.class
-hu\kuncystem\patient\pojo\session\Session.class
-hu\kuncystem\patient\pojo\user\Doctor.class
-hu\kuncystem\patient\pojo\user\User.class
-hu\kuncystem\patient\pojo\user\DefaultUser.class
-hu\kuncystem\patient\pojo\user\UserFactory.class

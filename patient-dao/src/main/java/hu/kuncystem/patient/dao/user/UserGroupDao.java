@@ -53,6 +53,17 @@ public interface UserGroupDao {
     public UserGroup getUserGroup(long id) throws DatabaseException;
 
     /**
+     * Get a row from the database by name.
+     *
+     * @param name
+     *            The name of group which identify an row in the database.
+     * @return Object.UserGroup is a simple POJO object.
+     * @throws DatabaseException
+     *             if the query fails
+     */
+    public UserGroup getUserGroup(String name) throws DatabaseException;
+
+    /**
      * Insert new user group into the database.
      *
      * @param group

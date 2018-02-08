@@ -78,6 +78,12 @@ public class UserDaoTest {
         user = userDao.getUser("teszt");
         assertNotNull(user);
     }
+    
+    @Test
+    public void stage32_schouldGetAllUsers() {
+        // get user by name
+        assertTrue(userDao.getAllUsers(10, 0, JDBCUserDao.ORDER_BY_USERNAME).size() > 0);
+    }
 
     @Test
     public void stage4_schouldGetUserDataWhenUserExsitsByNameAndPassword() {

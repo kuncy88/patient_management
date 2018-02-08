@@ -2,9 +2,13 @@ body {
 	background-color: white;
 }
 
+div.body-content{
+	margin-bottom: 20px;
+}
+
 div.login-container {
 	width: 50%;
-	height: 50%;
+	height: 70%;
 	min-width: 200px;
 	max-width: 400px;
 	margin: auto;
@@ -30,6 +34,6 @@ div.login-container form {
 	font-size: 10px;
 	color: gray;
 }
-.form-error{
+.form-error, form div.error-container{
 	display: none;
 }

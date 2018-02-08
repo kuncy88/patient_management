@@ -60,6 +60,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         http.authorizeRequests().antMatchers("/myaccount")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
+        http.authorizeRequests().antMatchers("/saveUser")
+            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
+        http.authorizeRequests().antMatchers("/usermanager/addUser")
+            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         
         http.formLogin().loginPage("/login").loginProcessingUrl("/j_spring_security_check")
                 .failureUrl("/login?type=" + LoginController.MESSAGE_TYPE_LOGIN_ERROR)

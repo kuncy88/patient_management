@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -30,7 +31,11 @@ import hu.kuncystem.patient.pojo.user.UserFactory;
  */
 @Repository
 public class JDBCUserDao implements UserDao {
-
+    /**
+     * This is the username field of the users table
+     * */
+    public static final String ORDER_BY_USERNAME = "u.user_name";
+    
     public static class UserRowMapper implements RowMapper<User> {
         private final UserFactory userFactory = new UserFactory();
 
@@ -43,7 +48,11 @@ public class JDBCUserDao implements UserDao {
          */
         public User mapRow(ResultSet rs, int row) throws SQLException {
             // get an object of User by group name
-            User u = userFactory.getUser(rs.getString("group_name").toUpperCase());
+            String group = rs.getString("group_name");
+            if(group == null){
+                group = UserFactory.DEFAULT;
+            }
+            User u = userFactory.getUser(group.toUpperCase());
 
             u.setUserName(rs.getString("user_name"));
             u.setPassword(rs.getString("passw"));
@@ -56,23 +65,18 @@ public class JDBCUserDao implements UserDao {
         }
 
     }
-
-    private static final String SQL_FIND_BY_ID = "SELECT " + "u.*, COALESCE(ug.name,'') AS group_name "
-            + "FROM users u " + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
-            + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id AND ug.name IN ('Patient','Doctor'))"
-            + "WHERE u.id = ?;";
-
-    private static final String SQL_FIND = "SELECT " + "u.*, COALESCE(ug.name,'') AS group_name " + "FROM users u "
+    
+    private static final String SQL_FIND = "SELECT " + "u.*, COALESCE(MIN(ug.name), '') AS group_name " + "FROM users u "
             + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
             + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id AND ug.name IN ('Patient','Doctor'))"
-            + "WHERE u.user_name = ? AND u.passw = ?;";
+            + "WHERE $CONDITION$ GROUP BY u.id;";
+    
+    private static final String SQL_FIND_ALL = "SELECT " + "u.*, GROUP_CONCAT(ug.name SEPARATOR ', ') AS group_name " + "FROM users u "
+            + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
+            + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id) "
+            + "GROUP BY u.id";
 
-    private static final String SQL_FIND_BY_NAME = "SELECT " + "u.*, COALESCE(ug.name,'') AS group_name "
-            + "FROM users u " + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
-            + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id AND ug.name IN ('Patient','Doctor'))"
-            + "WHERE u.user_name = ?;";
-
-    private static final String SQL_INSERT = "INSERT INTO users (user_name, passw, fullname, email) VALUES (?, ?, ?, ?);";
+    private static final String SQL_INSERT = "INSERT INTO users (user_name, passw, fullname, email, active) VALUES (?, ?, ?, ?, ?);";
 
     private static final String SQL_UPDATE = "UPDATE users SET user_name = ?, passw = ?, fullname = ?, email = ?, active = ? WHERE id = ?;";
 
@@ -91,32 +95,53 @@ public class JDBCUserDao implements UserDao {
     }
 
     public User getUser(long id) throws DatabaseException {
+        String sql = SQL_FIND.replace("$CONDITION$", "u.id = ?");
         try {
-            return jdbc.queryForObject(SQL_FIND_BY_ID, new UserRowMapper(), id);
+            return jdbc.queryForObject(sql, new UserRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (DataAccessException e) {
-            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_FIND_BY_ID, e);
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }
     }
 
     public User getUser(String name) throws DatabaseException {
+        String sql = SQL_FIND.replace("$CONDITION$", "u.user_name = ?");
         try {
-            return jdbc.queryForObject(SQL_FIND_BY_NAME, new UserRowMapper(), name);
+            return jdbc.queryForObject(sql, new UserRowMapper(), name);
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (DataAccessException e) {
-            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_FIND_BY_NAME, e);
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }
     }
 
     public User getUser(String name, String password) throws DatabaseException {
+        String sql = SQL_FIND.replace("$CONDITION$", " u.user_name = ? AND u.passw = ?");
         try {
-            return jdbc.queryForObject(SQL_FIND, new UserRowMapper(), name, password);
+            return jdbc.queryForObject(sql, new UserRowMapper(), name, password);
         } catch (EmptyResultDataAccessException e) {
             return null;
         } catch (DataAccessException e) {
-            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_FIND, e);
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
+        }
+    }
+    
+    public List<User> getAllUsers(int limit, int offset, String order){
+        String sql = SQL_FIND_ALL;
+        if(order != null){
+            sql += " ORDER BY " + order;
+        }
+        if(limit > -1){
+            sql += " LIMIT " + limit;
+        }
+        if(offset > -1){
+            sql += " OFFSET " + offset;
+        }
+        try {
+            return jdbc.query(sql, new UserRowMapper());
+        } catch (DataAccessException e) {
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }
     }
 
@@ -133,6 +158,7 @@ public class JDBCUserDao implements UserDao {
                     ps.setString(2, user.getPassword());
                     ps.setString(3, user.getFullname());
                     ps.setString(4, user.getEmail());
+                    ps.setBoolean(5, user.isActive());
 
                     return ps;
                 }
