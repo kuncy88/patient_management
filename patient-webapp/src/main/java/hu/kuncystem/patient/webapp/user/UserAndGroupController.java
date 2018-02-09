@@ -1,6 +1,8 @@
 package hu.kuncystem.patient.webapp.user;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -15,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import hu.kuncystem.patient.dao.user.JDBCUserDao;
 import hu.kuncystem.patient.pojo.user.User;
+import hu.kuncystem.patient.pojo.user.UserGroup;
 import hu.kuncystem.patient.servicelayer.user.UserGroupManager;
 import hu.kuncystem.patient.servicelayer.user.UserManager;
 import hu.kuncystem.patient.servicelayer.utilities.Hash;
@@ -32,6 +36,9 @@ import hu.kuncystem.patient.servicelayer.utilities.Hash;
 public class UserAndGroupController {
     private final static String MESSAGES_USER_SAVE_OK = "user_save_ok";
 
+    // size of the user table list
+    private final static int USER_LIST_LIMIT = 30;
+
     @Autowired
     private UserManager userManager;
 
@@ -42,7 +49,7 @@ public class UserAndGroupController {
     private MessageSource messageSource;
 
     @RequestMapping(value = "/usermanager", method = RequestMethod.GET)
-    public String usermanager(@RequestParam(value = "id", required = false) String rowId,
+    public String usermanager(@RequestParam(value = "o", required = false) Integer offset,
             @RequestParam(value = "state", required = false) String state, ModelMap model) {
 
         if (state != null) {
@@ -55,14 +62,49 @@ public class UserAndGroupController {
                 }
             }
         }
+
+        if (offset == null) {
+            offset = 0;
+        }
+
+        // list all of user
+        List<User> userList = userManager.getAllUsers(USER_LIST_LIMIT, offset, JDBCUserDao.ORDER_BY_USERNAME);
+
+        // add extra data to the view object
+        model.put("userList", userList);
+        model.put("limit", USER_LIST_LIMIT);
+        model.put("offset", offset);
+        model.put("end", (userList.size() < USER_LIST_LIMIT));
+
         return "usermanager";
     }
 
     @RequestMapping(value = "/usermanager/addUser", method = RequestMethod.GET)
-    public String showSaveUserForm(ModelMap model) {
+    public String showSaveUserForm(@RequestParam(value = "row", required = false) Integer rowId, ModelMap model) {
         UserForm userForm = new UserForm();
-        model.addAttribute("userForm", userForm);
+        model.put("modify", false);
         
+        if(rowId != null){
+            User user = userManager.getUser(rowId);
+            if(user != null){
+                userForm.setId(user.getId());
+                userForm.setFullname(user.getFullname());
+                userForm.setUsername(user.getUserName());
+                userForm.setEmail(user.getEmail());
+                userForm.setActive(user.isActive());
+                
+                List<String> groups = new ArrayList<String>();
+                List<UserGroup> groupList = userGroupManager.getGroupOfUser(user.getId());
+                for(UserGroup group: groupList){
+                    groups.add(group.getName());
+                }
+                userForm.setGroups(groups.toArray(new String[]{}));
+            }
+            
+            model.put("modify", true);
+        }
+        model.addAttribute("userForm", userForm);
+
         return "useredit";
     }
 
@@ -74,7 +116,7 @@ public class UserAndGroupController {
         }
 
         String page = "redirect:/usermanager?state=" + MESSAGES_USER_SAVE_OK;
-        
+
         User user = userManager.getUser(userForm.getUsername());
         if (user == null) { // user does not exists
             user = userManager.createUser(userForm.getUsername(), Hash.BCrypt(userForm.getPassword()),
@@ -86,58 +128,27 @@ public class UserAndGroupController {
                         model.put("message", messageSource.getMessage("user.message.database_error", null,
                                 LocaleContextHolder.getLocale()));
                         model.put("cls", "danger");
-                        
+
                         page = "useredit";
                     }
                 }
             } else {
                 // here is an error. the save of user was unsuccessful
-                model.put("message", messageSource.getMessage("user.message.database_error", null,
-                        LocaleContextHolder.getLocale()));
+                model.put("message",
+                        messageSource.getMessage("user.message.database_error", null, LocaleContextHolder.getLocale()));
                 model.put("cls", "danger");
-                
+
                 page = "useredit";
             }
         } else {
             // user exists(is not so good :-) )
-            model.put("message", messageSource.getMessage("user.message.user_exists", null,
-                    LocaleContextHolder.getLocale()));
+            model.put("message",
+                    messageSource.getMessage("user.message.user_exists", null, LocaleContextHolder.getLocale()));
             model.put("cls", "warning");
-            
+
             page = "useredit";
         }
 
         return page;
-    }
-    
-    @RequestMapping(value = "/myaccount", method = RequestMethod.GET)
-    public String account() {
-        return "myaccount";
-    }
-
-    @RequestMapping(value = "/saveUser", method = RequestMethod.POST)
-    public String saveUser(ModelMap model, UserForm userForm) {
-
-        /*
-         * String redirect = "/usermanager?state=" + MESSAGES_USER_SAVE_OK;
-         * //the datas is not correct System.out.println(username);
-         * System.out.println(password); System.out.println(passwordAgain); if
-         * (username.length() == 0 || !password.equals(passwordAgain)) {
-         * redirect = "/usermanager?page=useredit&state=" + MESSAGES_DATA_ERROR;
-         * } else { // check the user exists or not User user =
-         * userManager.getUser(username); if (user == null) { //add new user
-         * user = userManager.createUser(username, password, (active == "yes" ?
-         * true : false), fullname, email); if (user != null) { if (groups !=
-         * null) { //add user and group relation if
-         * (!userGroupManager.saveRelation(user.getId(), Arrays.asList(groups)))
-         * { //it heppaned database error redirect =
-         * "/usermanager?page=useredit&state=" + MESSAGES_DATABASE_ERROR; } } }
-         * else { //it happend database error redirect =
-         * "/usermanager?page=useredit&state=" + MESSAGES_DATABASE_ERROR; } }
-         * else { // user has been already exists redirect =
-         * "/usermanager?page=useredit&state=" + MESSAGES_USER_EXISTS; } }
-         */
-
-        return "redirect:/usermanager?page=useredit";
     }
 }

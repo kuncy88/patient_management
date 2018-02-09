@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import hu.kuncystem.patient.dao.user.JDBCUserDao;
 import hu.kuncystem.patient.pojo.user.User;
 import hu.kuncystem.patient.servicelayer.utilities.Hash;
 
@@ -57,6 +58,16 @@ public class UserManagerTest {
         user = userManager.getUser(user.getId());
         assertNotNull(user);
         assertTrue("update of user password failed", oldPass != user.getPassword());
+    }
+
+    @Test
+    public void stage21_schouldGetAllUsers() {
+        assertTrue(userManager.getAllUsers(10, 0, JDBCUserDao.ORDER_BY_USERNAME).size() > 0);
+    }
+
+    @Test
+    public void stage22_schouldDontGetAllUserBecauseTheOffsetIsBad() {
+        assertTrue(userManager.getAllUsers(10, 100, JDBCUserDao.ORDER_BY_USERNAME).size() == 0);
     }
 
     @Test

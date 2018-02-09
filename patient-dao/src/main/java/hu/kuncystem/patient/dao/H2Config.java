@@ -44,7 +44,7 @@ public class H2Config {
 
     /**
      * This method will run sql scripts on the database. For example: the
-     * database is not exists and we create this now, and we will run this
+     * database is not exists and we are creating this now, and we will run this
      * method which will load the default data into the database.
      */
     private DatabasePopulator createDatabasePopulator() {

@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import hu.kuncystem.patient.dao.appointment.AppointmentDao;
 import hu.kuncystem.patient.dao.exception.DatabaseException;
 import hu.kuncystem.patient.pojo.user.User;
 import hu.kuncystem.patient.pojo.user.UserFactory;
@@ -49,12 +53,19 @@ public class JDBCUserDao implements UserDao {
             }
             User u = userFactory.getUser(group.toUpperCase());
 
+            u.setId(rs.getInt("id"));
             u.setUserName(rs.getString("user_name"));
             u.setPassword(rs.getString("passw"));
             u.setActive(rs.getBoolean("active"));
-            u.setId(rs.getInt("id"));
             u.setEmail(rs.getString("email"));
             u.setFullname(rs.getString("fullname"));
+
+            DateFormat format = new SimpleDateFormat(AppointmentDao.DATE_FORMAT);
+            try {
+                u.setCreateDate(format.parse(rs.getString("created_date")));
+            } catch (ParseException e) {
+                u.setCreateDate(null);
+            }
 
             return u;
         }

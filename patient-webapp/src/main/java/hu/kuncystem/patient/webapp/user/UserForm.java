@@ -19,6 +19,8 @@ import hu.kuncystem.patient.webapp.validator.PasswordsEqualConstraint;
 public final class UserForm implements Serializable{
     private static final long serialVersionUID = 1L;
     
+    private long id;
+
     @Size(min= 1, max = 45)
     private String username;
     
@@ -40,6 +42,14 @@ public final class UserForm implements Serializable{
     
     public UserForm(){
         
+    }
+    
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getUsername() {

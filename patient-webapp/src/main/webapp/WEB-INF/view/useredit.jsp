@@ -4,7 +4,12 @@
 
 <script src="<c:url value="/resources/js/useredit.js" />"></script>
 
-<h2><spring:message code="user.label.create-new-user"/></h2>
+<h2>
+	<c:choose>
+		<c:when test="${not modify}"><spring:message code="user.label.create-new-user"/></c:when>
+		<c:otherwise><spring:message code="user.label.modify-user" /></c:otherwise>
+	</c:choose>
+</h2>
 
 <c:set var="passwordHasBindError">
 	<form:errors path="userForm" class="alert alert-danger" element="div" />
@@ -96,6 +101,8 @@
     	</div>
 	</div>
 	</spring:bind>
+	
+	<form:hidden path="id" />
 	
 	<div class="form-group"> 
     	<div class="col-sm-offset-2 col-sm-10">

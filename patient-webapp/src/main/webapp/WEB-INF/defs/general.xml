@@ -52,10 +52,4 @@
 		<put-attribute name="navbar" value="/WEB-INF/view/navbar.jsp" />
 		<put-attribute name="body" value="/WEB-INF/view/about.jsp" />
 	</definition>
-	
-	<definition name="myaccount" extends="common">
-		<put-attribute name="title" value="PatientManagement - Account" />
-		<put-attribute name="navbar" value="/WEB-INF/view/navbar.jsp" />
-		<put-attribute name="body" value="/WEB-INF/view/account.jsp" />
-	</definition>
 </tiles-definitions>

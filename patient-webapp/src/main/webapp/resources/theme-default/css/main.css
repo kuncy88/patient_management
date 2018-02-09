@@ -37,3 +37,10 @@ div.login-container form {
 .form-error, form div.error-container{
 	display: none;
 }
+
+.usermanager-pagination{
+	margin: 0px !important;
+}
+.usermanager-footer-pager{
+	margin-left: 15px;
+}

@@ -1,5 +1,7 @@
 package hu.kuncystem.patient.pojo.user;
 
+import java.util.Date;
+
 /**
  * This interface defines the standard operations to be performed on a Doctor or
  * a Patient model object(s).
@@ -10,6 +12,11 @@ package hu.kuncystem.patient.pojo.user;
  * @version 1.0
  */
 public interface User {
+    /**
+     * Get the created time of row.
+     */
+    public Date getCreateDate();
+
     /**
      * Get user's email.
      */
@@ -54,6 +61,14 @@ public interface User {
      *            true: user is active, false: user is not active.
      */
     public void setActive(boolean active);
+
+    /**
+     * Set the created time of row.
+     *
+     * @param date
+     *            An date when this row was created
+     */
+    public void setCreateDate(Date date);
 
     /**
      * Set user's email.

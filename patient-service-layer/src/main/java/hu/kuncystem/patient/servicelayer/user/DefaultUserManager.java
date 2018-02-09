@@ -1,5 +1,8 @@
 package hu.kuncystem.patient.servicelayer.user;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -55,6 +58,14 @@ public class DefaultUserManager implements UserManager {
             return null;
         }
         return user;
+    }
+
+    public List<User> getAllUsers(int limit, int offset, String order) {
+        try {
+            return userDao.getAllUsers(limit, offset, order);
+        } catch (DatabaseException e) {
+            return new ArrayList<User>();
+        }
     }
 
     public User getUser(long id) {
