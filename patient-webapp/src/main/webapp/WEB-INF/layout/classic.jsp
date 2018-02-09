@@ -35,11 +35,11 @@
 	</div>
 	
 	<!--Footer-->
-	<footer class="navbar-default navbar-fixed-bottom">
+	<div class="navbar-default navbar-fixed-bottom">
 		 <!--Copyright-->
 	    <div class="container-fluid">
 	        <p class="text-right"><tiles:insertAttribute name="footer" /></p>
 		</div>
-	</footer>
+	</div>
 </body>
 </html>
