@@ -31,28 +31,30 @@
     	</div>
 	</div>
 	</spring:bind>
-	
-	<spring:bind path="password">
-	<div class="form-group ${status.error || not empty passwordHasBindError ? 'has-error' : ''}">
-    	<form:label class="control-label col-sm-2" path="password"><spring:message code="label.password"/>:</form:label>
-    	<div class="col-sm-10">
-    		<spring:message code="user.placeholder.password" var="placeholder_password"/>
-     		<form:password data-pattern='[".{6,}"]' id="password" class="form-control" path="password" placeholder="${placeholder_password}" />
-     		<form:errors path="password" class="label label-danger"/>
-    	</div>
-	</div>
-	</spring:bind>
-	
-	<spring:bind path="confirmPassword">
-	<div class="form-group ${status.error || not empty passwordHasBindError ? 'has-error' : ''}">
-    	<form:label class="control-label col-sm-2" path="confirmPassword"><spring:message code="label.password-again"/>:</form:label>
-    	<div class="col-sm-10">
-    		<spring:message code="user.placeholder.password2" var="placeholder_password2"/>
-     		<form:password data-pattern='[".{6,}"]' id="password2" class="form-control" path="confirmPassword" placeholder="${placeholder_password2}" />
-     		<form:errors path="confirmPassword" class="label label-danger"/>
-    	</div>
-	</div>
-	</spring:bind>
+
+	<c:if test="${not modify or userForm.id == userId}">
+		<spring:bind path="password">
+		<div class="form-group ${status.error || not empty passwordHasBindError ? 'has-error' : ''}">
+	    	<form:label class="control-label col-sm-2" path="password"><spring:message code="label.password"/>:</form:label>
+	    	<div class="col-sm-10">
+	    		<spring:message code="user.placeholder.password" var="placeholder_password"/>
+	     		<form:password data-pattern='[".{6,}"]' id="password" class="form-control" path="password" placeholder="${placeholder_password}" />
+	     		<form:errors path="password" class="label label-danger"/>
+	    	</div>
+		</div>
+		</spring:bind>
+		
+		<spring:bind path="confirmPassword">
+		<div class="form-group ${status.error || not empty passwordHasBindError ? 'has-error' : ''}">
+	    	<form:label class="control-label col-sm-2" path="confirmPassword"><spring:message code="label.password-again"/>:</form:label>
+	    	<div class="col-sm-10">
+	    		<spring:message code="user.placeholder.password2" var="placeholder_password2"/>
+	     		<form:password data-pattern='[".{6,}"]' id="password2" class="form-control" path="confirmPassword" placeholder="${placeholder_password2}" />
+	     		<form:errors path="confirmPassword" class="label label-danger"/>
+	    	</div>
+		</div>
+		</spring:bind>
+	</c:if>
 	
 	<spring:bind path="email">
 	<div class="form-group ${status.error ? 'has-error' : ''}">

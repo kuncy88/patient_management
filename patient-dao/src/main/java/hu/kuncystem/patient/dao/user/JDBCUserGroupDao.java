@@ -67,8 +67,19 @@ public class JDBCUserGroupDao implements UserGroupDao {
 
     private static final String SQL_FIND_GROUP_BY_NAME = "SELECT * FROM user_group WHERE name = ?;";
 
+    private static final String SQL_RELATION_DELETE = "DELETE FROM user_group_relation WHERE user_group_id = ? AND users_id = ?;";
+
     @Autowired
     private JdbcOperations jdbc;
+
+    public boolean deleteUserGroupRelation(final UserGroup group, final User user) throws DatabaseException {
+        try {
+            int num = jdbc.update(SQL_RELATION_DELETE, group.getId(), user.getId());
+            return (num > 0) ? true : false;
+        } catch (DataAccessException e) {
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + SQL_RELATION_DELETE, e);
+        }
+    }
 
     public List<User> getAllUserFromGroup(UserGroup group) throws DatabaseException {
         try {

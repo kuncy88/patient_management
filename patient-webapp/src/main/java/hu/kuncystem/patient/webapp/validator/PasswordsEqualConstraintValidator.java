@@ -10,22 +10,29 @@ import hu.kuncystem.patient.webapp.user.UserForm;
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. febr. 4.
- *  
+ * 
  * @version 1.0
  */
-public class PasswordsEqualConstraintValidator implements
-ConstraintValidator<PasswordsEqualConstraint, Object> {
+public class PasswordsEqualConstraintValidator implements ConstraintValidator<PasswordsEqualConstraint, Object> {
 
     @Override
-    public void initialize(PasswordsEqualConstraint arg0) {}
+    public void initialize(PasswordsEqualConstraint arg0) {
+    }
 
-    /* (non-Javadoc)
-     * @see javax.validation.ConstraintValidator#isValid(java.lang.Object, javax.validation.ConstraintValidatorContext)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.validation.ConstraintValidator#isValid(java.lang.Object,
+     * javax.validation.ConstraintValidatorContext)
      */
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         UserForm user = (UserForm) value;
-        return user.getPassword().equals(user.getConfirmPassword());
+        if (user.getPassword() != null && user.getConfirmPassword() != null) {
+            return user.getPassword().equals(user.getConfirmPassword());
+        } else {
+            return true;
+        }
     }
 
 }

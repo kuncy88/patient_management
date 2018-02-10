@@ -1,5 +1,6 @@
 package hu.kuncystem.patient.servicelayer.user;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,40 @@ public class DefaultUserGroupManager implements UserGroupManager {
         userFactory = new UserFactory();
     }
 
+    public boolean changeUserGroup(long userId, List<String> newGroups) {
+        boolean ok = true;
+        if (newGroups != null && newGroups.size() > 0) {
+            // get the old groups of user
+            List<UserGroup> oldGroups = this.getGroupOfUser(userId);
+
+            // if the old group is not in the new group list then we can delete
+            // this relation(user-group)
+            for (UserGroup group : oldGroups) {
+                if (!newGroups.contains(group.getName())) {
+                    // delete unnecessary relation
+                    if (!deleteUserFromGroup(group.getId(), userId)) {
+                        return false;
+                    }
+                }
+            }
+
+            // if the new group is not in the old list then we have to save this
+            // new relation(user-group)
+            List<String> newGroupList = new ArrayList<String>();
+            for (String group : newGroups) {
+
+                for (UserGroup x : oldGroups) {
+                    if (!x.getName().equals(group) && !newGroupList.contains(group)) {
+                        newGroupList.add(group);
+                    }
+                }
+            }
+            // save new relation
+            ok = this.saveRelation(userId, newGroupList);
+        }
+        return ok;
+    }
+
     public UserGroup createGroup(String name) {
         return this.createGroup(name, null);
     }
@@ -54,6 +89,19 @@ public class DefaultUserGroupManager implements UserGroupManager {
             e.printStackTrace();
         }
         return group;
+    }
+
+    public boolean deleteUserFromGroup(long groupId, long userId) {
+        UserGroup group = new UserGroup(groupId);
+
+        User user = userFactory.getUser(UserFactory.DEFAULT);
+        user.setId(userId);
+
+        try {
+            return userGroupDao.deleteUserGroupRelation(group, user);
+        } catch (DatabaseException e) {
+            return false;
+        }
     }
 
     public UserGroup getGroup(long id) {
@@ -113,5 +161,4 @@ public class DefaultUserGroupManager implements UserGroupManager {
             return false;
         }
     }
-
 }

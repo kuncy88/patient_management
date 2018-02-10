@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.FixMethodOrder;
@@ -92,5 +93,25 @@ public class UserGroupManagerTest {
     public void stage5_schouldGetDataOfGroupById() {
         UserGroup group1 = userGroupManager.getGroup(group.getId());
         assertTrue("Get data of group failed", group.getId() == group1.getId());
+    }
+
+    @Test
+    public void stage6_schouldChangeTheGroupOfUser() {
+        userGroupManager.createGroup("Group2", "note of test group2");
+        userGroupManager.createGroup("Group3", "note of test group3");
+
+        // check old relation
+        List<UserGroup> groupList = userGroupManager.getGroupOfUser(user.getId());
+        assertTrue((groupList.size() == 1));
+
+        List<String> newGroups = new ArrayList<String>();
+        newGroups.add("Group2");
+        newGroups.add("Group3");
+        // change relation
+        assertTrue("the change of group was unsuccessful", userGroupManager.changeUserGroup(user.getId(), newGroups));
+
+        // check new relation
+        groupList = userGroupManager.getGroupOfUser(user.getId());
+        assertTrue((groupList.size() == 2));
     }
 }

@@ -34,7 +34,15 @@ import hu.kuncystem.patient.servicelayer.utilities.Hash;
  */
 @Controller
 public class UserAndGroupController {
-    private final static String MESSAGES_USER_SAVE_OK = "user_save_ok";
+    private enum STATE {
+        SAVE_OK, UPDATE_OK, USER_EXISTS, USER_NO_EXISTS, DATABASE_ERROR
+    }
+
+    private final static String MESSAGES_USER_SAVE_OK = "sok";
+    private final static String MESSAGES_USER_UPDATE_OK = "uok";
+    
+    private final static String MESSAGES_USER_DELETE_OK = "dok";
+    private final static String MESSAGES_USER_DELETE_ERROR = "derror";
 
     // size of the user table list
     private final static int USER_LIST_LIMIT = 30;
@@ -60,6 +68,24 @@ public class UserAndGroupController {
                     model.put("cls", "success");
                     break;
                 }
+                case MESSAGES_USER_UPDATE_OK: {
+                    model.put("message",
+                            messageSource.getMessage("user.message.update_ok", null, LocaleContextHolder.getLocale()));
+                    model.put("cls", "success");
+                    break;
+                }
+                case MESSAGES_USER_DELETE_OK: {
+                    model.put("message",
+                            messageSource.getMessage("user.message.delete_ok", null, LocaleContextHolder.getLocale()));
+                    model.put("cls", "success");
+                    break;
+                }
+                case MESSAGES_USER_DELETE_ERROR: {
+                    model.put("message",
+                            messageSource.getMessage("user.message.delete_error", null, LocaleContextHolder.getLocale()));
+                    model.put("cls", "danger");
+                    break;
+                }
             }
         }
 
@@ -68,8 +94,7 @@ public class UserAndGroupController {
         }
 
         // list all of user
-        List<User> userList = userManager.getAllUsers(USER_LIST_LIMIT, offset, JDBCUserDao.ORDER_BY_USERNAME);
-
+        List<User> userList = userManager.getAllUsers(USER_LIST_LIMIT, offset, JDBCUserDao.ORDER_BY_FULLNAME_ACTIVE);
         // add extra data to the view object
         model.put("userList", userList);
         model.put("limit", USER_LIST_LIMIT);
@@ -83,24 +108,24 @@ public class UserAndGroupController {
     public String showSaveUserForm(@RequestParam(value = "row", required = false) Integer rowId, ModelMap model) {
         UserForm userForm = new UserForm();
         model.put("modify", false);
-        
-        if(rowId != null){
+
+        if (rowId != null) {
             User user = userManager.getUser(rowId);
-            if(user != null){
+            if (user != null) {
                 userForm.setId(user.getId());
                 userForm.setFullname(user.getFullname());
                 userForm.setUsername(user.getUserName());
                 userForm.setEmail(user.getEmail());
                 userForm.setActive(user.isActive());
-                
+
                 List<String> groups = new ArrayList<String>();
                 List<UserGroup> groupList = userGroupManager.getGroupOfUser(user.getId());
-                for(UserGroup group: groupList){
+                for (UserGroup group : groupList) {
                     groups.add(group.getName());
                 }
-                userForm.setGroups(groups.toArray(new String[]{}));
+                userForm.setGroups(groups.toArray(new String[] {}));
             }
-            
+
             model.put("modify", true);
         }
         model.addAttribute("userForm", userForm);
@@ -108,47 +133,143 @@ public class UserAndGroupController {
         return "useredit";
     }
 
-    @Transactional
     @RequestMapping(value = "/usermanager/addUser", method = RequestMethod.POST)
     public String addUser(ModelMap model, @Valid UserForm userForm, BindingResult result) {
         if (result.hasErrors()) {
             return "useredit";
         }
 
-        String page = "redirect:/usermanager?state=" + MESSAGES_USER_SAVE_OK;
+        STATE state;
+        String page = null;
 
+        if (userForm.getId() == 0) { // insert new user data
+            state = this.addUser(userForm);
+            model.put("modify", false);
+        } else { // update an user
+            state = this.updateUser(userForm);
+            model.put("modify", true);
+        }
+
+        switch (state) {
+            case USER_EXISTS: {
+                model.put("cls", "warning");
+                model.put("message",
+                        messageSource.getMessage("user.message.user_exists", null, LocaleContextHolder.getLocale()));
+
+                page = "useredit";
+
+                break;
+            }
+            case USER_NO_EXISTS: {
+                model.put("cls", "warning");
+                model.put("message",
+                        messageSource.getMessage("user.message.user_no_exists", null, LocaleContextHolder.getLocale()));
+
+                page = "useredit";
+                break;
+            }
+            case DATABASE_ERROR: {
+                model.put("cls", "danger");
+                model.put("message",
+                        messageSource.getMessage("user.message.database_error", null, LocaleContextHolder.getLocale()));
+
+                page = "useredit";
+
+                break;
+            }
+            case SAVE_OK: {
+                page = "redirect:/usermanager?state=" + MESSAGES_USER_SAVE_OK;
+                break;
+            }
+            case UPDATE_OK: {
+                page = "redirect:/usermanager?state=" + MESSAGES_USER_UPDATE_OK;
+                break;
+            }
+            default: {
+                page = "redirect:/usermanager";
+                break;
+            }
+
+        }
+
+        return page;
+    }
+
+    @RequestMapping(value = "/usermanager/deleteUser")
+    public String deleteUser(@RequestParam(value = "row") Integer rowId) {
+        String page = "redirect:/usermanager";
+
+        if (userManager.updateUser(rowId, null, null, false, null, null)) {
+            page += "?state=" + MESSAGES_USER_DELETE_OK;
+        } else {
+            page += "?state=" + MESSAGES_USER_DELETE_ERROR;
+        }
+
+        return page;
+    }
+
+    /**
+     * Create new user and create user and group relations.
+     * 
+     * @param userForm
+     *            This is an DTO object which contains all of necessary data.
+     * 
+     * @return STATE enum.
+     */
+    @Transactional
+    private STATE addUser(UserForm userForm) {
         User user = userManager.getUser(userForm.getUsername());
-        if (user == null) { // user does not exists
+        if (user == null) {
+            // create new user
             user = userManager.createUser(userForm.getUsername(), Hash.BCrypt(userForm.getPassword()),
                     userForm.isActive(), userForm.getFullname(), userForm.getEmail());
             if (user != null) {
                 if (userForm.getGroups() != null) {
+                    // create user and group relations
                     if (!userGroupManager.saveRelation(user.getId(), Arrays.asList(userForm.getGroups()))) {
-                        // save of relation was unsuccessful
-                        model.put("message", messageSource.getMessage("user.message.database_error", null,
-                                LocaleContextHolder.getLocale()));
-                        model.put("cls", "danger");
-
-                        page = "useredit";
+                        return STATE.DATABASE_ERROR;
                     }
                 }
             } else {
-                // here is an error. the save of user was unsuccessful
-                model.put("message",
-                        messageSource.getMessage("user.message.database_error", null, LocaleContextHolder.getLocale()));
-                model.put("cls", "danger");
-
-                page = "useredit";
+                return STATE.DATABASE_ERROR;
             }
         } else {
-            // user exists(is not so good :-) )
-            model.put("message",
-                    messageSource.getMessage("user.message.user_exists", null, LocaleContextHolder.getLocale()));
-            model.put("cls", "warning");
-
-            page = "useredit";
+            return STATE.USER_EXISTS;
         }
 
-        return page;
+        return STATE.SAVE_OK;
+    }
+
+    /**
+     * Update an user data and update user and group relations.
+     * 
+     * @param userForm
+     *            This is an DTO object which contains all of necessary data.
+     * 
+     * @return STATE enum.
+     */
+    @Transactional
+    private STATE updateUser(UserForm userForm) {
+        User user = userManager.getUser(userForm.getId());
+        if (user != null) {
+            // update user
+            String password = userForm.getPassword();
+            if (password != null) {
+                password = Hash.BCrypt(userForm.getPassword());
+            }
+            boolean ok = userManager.updateUser(userForm.getId(), userForm.getUsername(), password, userForm.isActive(),
+                    userForm.getFullname(), userForm.getEmail());
+            if (!ok) {
+                return STATE.DATABASE_ERROR;
+            } else if (userForm.getGroups() != null) {
+                // update user groups
+                if (!userGroupManager.changeUserGroup(userForm.getId(), Arrays.asList(userForm.getGroups()))) {
+                    return STATE.DATABASE_ERROR;
+                }
+            }
+        } else {
+            return STATE.USER_NO_EXISTS;
+        }
+        return STATE.UPDATE_OK;
     }
 }

@@ -76,6 +76,7 @@ public class JDBCUserDao implements UserDao {
      * This is the username field of the users table
      */
     public static final String ORDER_BY_USERNAME = "u.user_name";
+    public static final String ORDER_BY_FULLNAME_ACTIVE = " u.active DESC, COALESCE(u.fullname, u.user_name)";
 
     private static final String SQL_FIND = "SELECT " + "u.*, COALESCE(MIN(ug.name), '') AS group_name "
             + "FROM users u " + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"

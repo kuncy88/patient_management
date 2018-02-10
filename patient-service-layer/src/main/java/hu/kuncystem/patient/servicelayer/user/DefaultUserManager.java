@@ -93,17 +93,38 @@ public class DefaultUserManager implements UserManager {
 
     public boolean updateUser(long userId, String name, String password, boolean active, String fullname,
             String email) {
-        User user = userFactory.getUser(UserFactory.DEFAULT);
-        user.setId(userId);
-        user.setUserName(name);
-        user.setPassword(password);
-        user.setActive(active);
-        user.setEmail(email);
-        user.setFullname(fullname);
+        User userFromDatasource = this.getUser(userId);
 
-        try {
-            return userDao.updateUser(user);
-        } catch (DatabaseException e) {
+        if (userFromDatasource != null) {
+            // if the any data is null, then we use the data from database.
+            // These data we won't update.
+            if (name == null) {
+                name = userFromDatasource.getUserName();
+            }
+            if (password == null) {
+                password = userFromDatasource.getPassword();
+            }
+            if (fullname == null) {
+                fullname = userFromDatasource.getFullname();
+            }
+            if (email == null) {
+                email = userFromDatasource.getEmail();
+            }
+
+            User user = userFactory.getUser(UserFactory.DEFAULT);
+            user.setId(userId);
+            user.setUserName(name);
+            user.setPassword(password);
+            user.setActive(active);
+            user.setEmail(email);
+            user.setFullname(fullname);
+
+            try {
+                return userDao.updateUser(user);
+            } catch (DatabaseException e) {
+                return false;
+            }
+        } else {
             return false;
         }
     }

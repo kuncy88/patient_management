@@ -44,3 +44,6 @@ div.login-container form {
 .usermanager-footer-pager{
 	margin-left: 15px;
 }
+.opacity-red{
+	background-color: rgba(255,0,0,0.1) !Important;
+}
