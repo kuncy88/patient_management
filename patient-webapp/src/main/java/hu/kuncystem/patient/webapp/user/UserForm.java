@@ -39,6 +39,7 @@ public final class UserForm implements Serializable{
     
     private boolean active = true;
     private String[] groups = new String[]{};
+    private String resetPassword;
     
     public UserForm(){
         
@@ -108,4 +109,11 @@ public final class UserForm implements Serializable{
         this.groups = groups;
     }
     
+    public String getResetPassword() {
+        return resetPassword;
+    }
+
+    public void setResetPassword(String resetPassword) {
+        this.resetPassword = resetPassword;
+    }    
 }

@@ -53,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/", "/index")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         http.authorizeRequests().antMatchers("/usermanager")
-            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR')");
+            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         http.authorizeRequests().antMatchers("/usermanager/addUser")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         http.authorizeRequests().antMatchers("/usermanager/deleteUser")

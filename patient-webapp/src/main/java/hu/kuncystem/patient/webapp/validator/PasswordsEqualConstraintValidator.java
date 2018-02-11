@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidatorContext;
 import hu.kuncystem.patient.webapp.user.UserForm;
 
 /**
- * this for comment of classes
+ * This object will check the passwords to equals or not.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. febr. 4.

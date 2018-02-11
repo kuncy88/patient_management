@@ -77,6 +77,20 @@
 	</div>	
 	</spring:bind>
 	
+	<c:if test="${modify and userForm.id != userId}">
+		<spring:bind path="resetPassword">
+		<div class="form-group" title="<spring:message code="user.title.reset_password"/>">
+	    	<label class="control-label col-sm-2" for="resetPassword1"><spring:message code="user.label.reset_password"/>:</label>
+	    	<div class="col-sm-10">
+	     		<div class="checkbox">
+	     			<spring:message code="user.placeholder.reset_password" var="reset_password"/>
+					<label><form:checkbox path="resetPassword" value="reset" class="chk-reset-password" /><span class="chk-reset-password-span">${reset_password}</span></label>
+				</div>
+	    	</div>
+		</div>	
+		</spring:bind>
+	</c:if>
+	
 	<spring:bind path="active">
 	<div class="form-group" title="<spring:message code="user.title.active"/>">
     	<label class="control-label col-sm-2" for="active1"><spring:message code="label.active"/>:</label>
@@ -95,10 +109,10 @@
 				<label><form:checkbox path="groups" value="Admin" /><spring:message code="label.administrator"/></label>
 			</div>
 			<div class="checkbox">
-				<label><form:checkbox path="groups" value="Doctor" /><spring:message code="label.doctor"/></label>
+				<label><form:checkbox path="groups" value="Doctor" class="group-just-one" /><spring:message code="label.doctor"/></label>
 			</div>
 			<div class="checkbox">
-				<label><form:checkbox path="groups" value="Patient" /><spring:message code="label.patient"/></label>
+				<label><form:checkbox path="groups" value="Patient" class="group-just-one" /><spring:message code="label.patient"/></label>
 			</div>
     	</div>
 	</div>

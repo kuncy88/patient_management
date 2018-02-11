@@ -10,7 +10,7 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * this for comment of classes
+ * This is an password equals checker annotaion.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. febr. 4.

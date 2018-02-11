@@ -26,4 +26,31 @@ $(function(){
 		}
 	});
 	
+	checkboxCheckJustOne("input.group-just-one");
+	
+	$(".chk-reset-password").on("change", function(){
+		if($(this).is(":checked")){
+			$(".chk-reset-password-span").fadeIn();
+		}else{
+			$(".chk-reset-password-span").fadeOut();
+		}
+	});
 });
+
+/**
+ * We can check in just one checkbox.
+ * 
+ * @param obj The html checkboxes which concern this rule
+ * */
+function checkboxCheckJustOne(obj){
+	$(obj).on("click", function(e){
+		if($(this).is(":checked")){
+			var $this = $(this);
+			$(obj).each(function(k, v){
+				if($(v).val() != $this.val()){
+					$(v).prop("checked", false);
+				}
+			});
+		}
+	});
+}

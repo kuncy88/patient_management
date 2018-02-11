@@ -15,7 +15,7 @@ import hu.kuncystem.patient.servicelayer.user.UserManager;
 
 /**
  * This is an interceptor class. This class run each time when it happend an request and set default user data.
- * These data use in the html code.
+ * We can use these data in the html code.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. jan. 30.
