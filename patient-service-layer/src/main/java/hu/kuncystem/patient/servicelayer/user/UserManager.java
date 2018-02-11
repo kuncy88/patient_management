@@ -1,5 +1,7 @@
 package hu.kuncystem.patient.servicelayer.user;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import hu.kuncystem.patient.pojo.user.User;
@@ -45,6 +47,21 @@ public interface UserManager {
      */
     @Transactional
     public User createUser(String name, String password, boolean active, String fullname, String email);
+
+    /**
+     * Get all of users from the database without condition.
+     *
+     * @param limit
+     *            How many users do we want to get. If it is -1 then we won't
+     *            use the limit.
+     * @param offset
+     *            Where from we want to get. If it is -1 then we won't use the
+     *            offset.
+     * @param order
+     *            This is the column which we can order the result.
+     * @return Object.List object which contains User objects.
+     */
+    public List<User> getAllUsers(int limit, int offset, String order);
 
     /**
      * Get one user's data from the database.

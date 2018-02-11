@@ -15,7 +15,7 @@ import hu.kuncystem.patient.servicelayer.user.UserManager;
 
 /**
  * This is an interceptor class. This class run each time when it happend an request and set default user data.
- * These data use in the html code.
+ * We can use these data in the html code.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. jan. 30.
@@ -31,7 +31,7 @@ public class LoggedInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-
+        
         //get current auth data
         //if the user is not loggeed then the name is: anonymousUser
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -43,6 +43,7 @@ public class LoggedInterceptor extends HandlerInterceptorAdapter {
                     name = user.getUserName();
                 }
                 request.setAttribute("userFullname", name);
+                request.setAttribute("userId", user.getId());
             }
         }
 

@@ -107,4 +107,9 @@ public class UserGroupDaoTest {
         assertTrue("test group list by user failed", groupList.size() > 0);
     }
 
+    @Test
+    public void stage9_schouldDeleteUserFromGroup() {
+        assertTrue("delete relation was failed", userGroupDao.deleteUserGroupRelation(group, user));
+    }
+
 }

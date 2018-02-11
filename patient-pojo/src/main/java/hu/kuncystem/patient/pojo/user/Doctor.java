@@ -1,5 +1,7 @@
 package hu.kuncystem.patient.pojo.user;
 
+import java.util.Date;
+
 public class Doctor implements User {
     // user's unique id in the database
     private long id;
@@ -13,6 +15,8 @@ public class Doctor implements User {
     private String email;
     // user's state, active or not
     private boolean active;
+    // created time of row
+    private Date createDate;
 
     /**
      * This class will pass information to user dao object to get the data it
@@ -52,6 +56,10 @@ public class Doctor implements User {
         setActive(active);
     }
 
+    public Date getCreateDate() {
+        return this.createDate;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -84,6 +92,10 @@ public class Doctor implements User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public void setCreateDate(Date date) {
+        this.createDate = date;
     }
 
     public void setEmail(String email) {

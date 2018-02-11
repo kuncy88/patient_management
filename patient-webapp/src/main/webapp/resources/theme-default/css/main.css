@@ -2,9 +2,13 @@ body {
 	background-color: white;
 }
 
+div.body-content{
+	margin-bottom: 20px;
+}
+
 div.login-container {
 	width: 50%;
-	height: 50%;
+	height: 70%;
 	min-width: 200px;
 	max-width: 400px;
 	margin: auto;
@@ -30,6 +34,21 @@ div.login-container form {
 	font-size: 10px;
 	color: gray;
 }
-.form-error{
+.form-error, form div.error-container{
 	display: none;
+}
+
+.usermanager-pagination{
+	margin: 0px !important;
+}
+.usermanager-footer-pager{
+	margin-left: 15px;
+}
+.opacity-red{
+	background-color: rgba(255,0,0,0.1) !Important;
+}
+.chk-reset-password-span{
+	display: none;
+	color: red;
+	font-weight: bold;
 }

@@ -16,6 +16,19 @@ import hu.kuncystem.patient.pojo.user.UserGroup;
 public interface UserGroupManager {
 
     /**
+     * Change an user and group relation. This method remove the old and
+     * unnecessary relation and add new relations.
+     * 
+     * @param userId
+     *            This is an user who we want to change him/her groups.
+     * @param newGroups
+     *            This is an list which contains the new name of groups.
+     * 
+     * @return It will return true for success otherwise it will return false.
+     */
+    public boolean changeUserGroup(long userId, List<String> newGroups);
+
+    /**
      * Create new user group in the database.
      *
      * @param name
@@ -40,6 +53,17 @@ public interface UserGroupManager {
     public UserGroup createGroup(String name, String note);
 
     /**
+     * This method removes an user from an group.
+     *
+     * @param group
+     *            This is the group from which we want to delete the user.
+     * @param user
+     *            This user who we want to delete from the group.
+     * @return It will return true for success otherwise it will return false.
+     */
+    public boolean deleteUserFromGroup(long groupId, long userId);
+
+    /**
      * Get one data of group from the database.
      *
      * @param id
@@ -51,7 +75,7 @@ public interface UserGroupManager {
     public UserGroup getGroup(long id);
 
     /**
-     * This method returns all groups of a user.
+     * This method returns all groups of an user.
      *
      * @param userId
      *            This is the unique user id. This id identifies one row in User
@@ -69,6 +93,19 @@ public interface UserGroupManager {
      * @return Object.List object which contains User objects.
      */
     public List<User> getUsersFromGroup(long groupId);
+
+    /**
+     * Create a relation between a group and a user.
+     *
+     * @param userId
+     *            This is the unique user id. This id identifies one row in User
+     *            table.
+     * @param groupList
+     *            This is the list of group name.
+     * @return will return true for success otherwise it will return false.
+     */
+    @Transactional
+    public boolean saveRelation(long userId, List<String> groupList);
 
     /**
      * Create a relation between a group and a user.

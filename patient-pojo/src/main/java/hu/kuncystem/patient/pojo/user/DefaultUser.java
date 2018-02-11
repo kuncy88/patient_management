@@ -1,5 +1,7 @@
 package hu.kuncystem.patient.pojo.user;
 
+import java.util.Date;
+
 /**
  * This object is a simple POJO containing get/set methods. This object is going
  * to work as a Model.
@@ -22,6 +24,8 @@ public class DefaultUser implements User {
     private String email;
     // user's state, active or not
     private boolean active;
+    // created time of row
+    private Date createDate;
 
     /**
      * This class will pass information to user dao object to get the data it
@@ -61,6 +65,10 @@ public class DefaultUser implements User {
         setActive(active);
     }
 
+    public Date getCreateDate() {
+        return this.createDate;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -93,6 +101,10 @@ public class DefaultUser implements User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public void setCreateDate(Date date) {
+        this.createDate = date;
     }
 
     public void setEmail(String email) {

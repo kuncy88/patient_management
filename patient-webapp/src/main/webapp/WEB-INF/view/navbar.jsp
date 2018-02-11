@@ -1,6 +1,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+<script src="<c:url value="/resources/js/navbar.js" />"></script>
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<div class="navbar-header">
@@ -25,7 +26,7 @@
           				<span class="caret"></span>
           			</a>
 		        	<ul class="dropdown-menu">
-			            <li><a href="/myaccount"><spring:message code="navbar.menu.myaccount"/></a></li>
+			            <li><a href="/usermanager/addUser?row=${userId}"><spring:message code="navbar.menu.myaccount"/></a></li>
 			            <li><a href="/about"><spring:message code="navbar.menu.about"/></a></li>
 			            <li role="separator" class="divider"></li>
 			            <li><a href="/logout"><spring:message code="navbar.menu.logout"/></a></li>

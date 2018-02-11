@@ -35,7 +35,7 @@ public class LoginController {
     public final static String MESSAGE_TYPE_ERROR_SESSION = "session";
 
     public final static String MESSAGE_TYPE_ERROR_SESSIONUSER = "session_user";
-    
+
     @Autowired
     private MessageSource messageSource;
 
@@ -63,17 +63,23 @@ public class LoginController {
         // get logged in username
         User user = userManager.getUser(principal.getName());
         if (user != null) {
-            if (sessionManager.destroyAllActiveSession(user.getId())) {         //destroy all active session
-                try {
-                    sessionManager.createSession(user.getId(), request.getRemoteAddr(),
-                            request.getHeader("User-Agent"));
-                } catch (Exception e) {     //session create error
+            if(user.isActive()){            //the user is active now
+                // destroy all active session
+                if (sessionManager.destroyAllActiveSession(user.getId())) {
+                    try {
+                        sessionManager.createSession(user.getId(), request.getRemoteAddr(),
+                                request.getHeader("User-Agent"));
+                    } catch (Exception e) { // session create error
+                        redirect = "logout?type=" + MESSAGE_TYPE_ERROR_SESSION;
+                        e.printStackTrace();
+                    }
+                } else { // destroy error
                     redirect = "logout?type=" + MESSAGE_TYPE_ERROR_SESSION;
-                    e.printStackTrace();
                 }
-            } else {                        //destroy error
-                redirect = "logout?type=" + MESSAGE_TYPE_ERROR_SESSION;            }
-        } else {                            //user not found
+            } else {                        //this user is not active (it has been deleted)
+                redirect = "logout?type=" + MESSAGE_TYPE_LOGIN_ERROR;
+            }
+        } else { // user not found
             redirect = "logout?type=" + MESSAGE_TYPE_ERROR_SESSIONUSER;
         }
         return "redirect:/" + redirect;
@@ -91,7 +97,8 @@ public class LoginController {
      * This is the login page. We show the login form and we handle the process
      * of login result.
      * 
-     * @param type This is the message type which we want to show.
+     * @param type
+     *            This is the message type which we want to show.
      */
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String login(@RequestParam(value = "type", required = false) String type, ModelMap model,
@@ -104,19 +111,20 @@ public class LoginController {
                 String text = "";
                 String cls = "info";
                 switch (type) {
-                    case MESSAGE_TYPE_LOGOUT: {         //logout was success
-                        text = messageSource.getMessage("message.logout_success", null, LocaleContextHolder.getLocale());
+                    case MESSAGE_TYPE_LOGOUT: { // logout was success
+                        text = messageSource.getMessage("message.logout_success", null,
+                                LocaleContextHolder.getLocale());
 
                         cls = "success";
                         break;
                     }
-                    case MESSAGE_TYPE_LOGIN_ERROR: {    //bad user data
+                    case MESSAGE_TYPE_LOGIN_ERROR: { // bad user data
                         text = messageSource.getMessage("message.bad_auth_data", null, LocaleContextHolder.getLocale());
 
                         cls = "danger";
                         break;
                     }
-                    case MESSAGE_TYPE_ERROR_SESSION:    //session create error
+                    case MESSAGE_TYPE_ERROR_SESSION: // session create error
                     case MESSAGE_TYPE_ERROR_SESSIONUSER: {
                         text = messageSource.getMessage("message.login_session_error", null,
                                 LocaleContextHolder.getLocale());

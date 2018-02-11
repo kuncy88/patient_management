@@ -13,14 +13,16 @@
 <title><tiles:getAsString name="title" /></title>
 
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <link href="<c:url value="/resources/css/main.css" />" rel="stylesheet">
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="<c:url value="/resources/js/formcheck.js" />"></script>
 <script src="<c:url value="/resources/js/jquery.cookie.js" />"></script>
 
@@ -28,16 +30,16 @@
 <body>
 	<tiles:insertAttribute name="navbar" />
 	
-	<div class="container-fluid">
+	<div class="container-fluid body-content">
 		<tiles:insertAttribute name="body" />
 	</div>
 	
 	<!--Footer-->
-	<footer class="navbar-default navbar-fixed-bottom">
+	<div class="navbar-default navbar-fixed-bottom">
 		 <!--Copyright-->
 	    <div class="container-fluid">
-	        <p class="text-center"><tiles:insertAttribute name="footer" /></p>
+	        <p class="text-right"><tiles:insertAttribute name="footer" /></p>
 		</div>
-	</footer>
+	</div>
 </body>
 </html>

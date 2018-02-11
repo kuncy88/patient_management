@@ -17,6 +17,21 @@ import hu.kuncystem.patient.pojo.user.UserGroup;
  */
 public interface UserGroupDao {
     /**
+     * This method removes an user group relation.
+     *
+     * @param group
+     *            Object.UserGroup is a simple POJO object. This is the group
+     *            from which we want to delete the user.
+     * @param user
+     *            Object.User is a simple POJO object. This user who we want to
+     *            delete from the group.
+     * @return It will return true for success otherwise it will return false.
+     * @throws DatabaseException
+     *             if there is any problem issuing the delete
+     */
+    public boolean deleteUserGroupRelation(UserGroup group, User user) throws DatabaseException;
+
+    /**
      * Return all users who are in this group.
      *
      * @param user
@@ -51,6 +66,17 @@ public interface UserGroupDao {
      *             if the query fails
      */
     public UserGroup getUserGroup(long id) throws DatabaseException;
+
+    /**
+     * Get a row from the database by name.
+     *
+     * @param name
+     *            The name of group which identify an row in the database.
+     * @return Object.UserGroup is a simple POJO object.
+     * @throws DatabaseException
+     *             if the query fails
+     */
+    public UserGroup getUserGroup(String name) throws DatabaseException;
 
     /**
      * Insert new user group into the database.

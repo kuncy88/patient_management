@@ -80,6 +80,12 @@ public class UserDaoTest {
     }
 
     @Test
+    public void stage32_schouldGetAllUsers() {
+        // get user by name
+        assertTrue(userDao.getAllUsers(10, 0, JDBCUserDao.ORDER_BY_USERNAME).size() > 0);
+    }
+
+    @Test
     public void stage4_schouldGetUserDataWhenUserExsitsByNameAndPassword() {
         user = userDao.getUser("teszt", "abcd12345");
         assertEquals("test1@domain.com", user.getEmail());
