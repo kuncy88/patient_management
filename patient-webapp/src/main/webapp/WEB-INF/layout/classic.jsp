@@ -35,7 +35,7 @@
 	</div>
 	
 	<!--Footer-->
-	<div class="navbar-default navbar-fixed-bottom">
+	<div class="navbar-default navbar-fixed-bottom pm-page-footer">
 		 <!--Copyright-->
 	    <div class="container-fluid">
 	        <p class="text-right"><tiles:insertAttribute name="footer" /></p>
