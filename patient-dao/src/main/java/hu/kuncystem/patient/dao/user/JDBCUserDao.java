@@ -80,7 +80,7 @@ public class JDBCUserDao implements UserDao {
 
     private static final String SQL_FIND = "SELECT " + "u.*, COALESCE(MIN(ug.name), '') AS group_name "
             + "FROM users u " + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
-            + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id AND ug.name IN ('Patient','Doctor'))"
+            + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id AND ug.name IN ('Patient','Doctor')) "
             + "WHERE $CONDITION$ GROUP BY u.id;";
 
     private static final String SQL_FIND_ALL = "SELECT " + "u.*, GROUP_CONCAT(ug.name SEPARATOR ', ') AS group_name "
@@ -151,6 +151,20 @@ public class JDBCUserDao implements UserDao {
             return jdbc.queryForObject(sql, new UserRowMapper(), name, password);
         } catch (EmptyResultDataAccessException e) {
             return null;
+        } catch (DataAccessException e) {
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
+        }
+    }
+
+    public List<User> getUsersFilterByName(String query) {
+        query = "%" + query + "%";
+        // inject the filter
+        String sql = SQL_FIND.replace("$CONDITION$", " LOWER(COALESCE(u.fullname, u.user_name)) LIKE ?");
+        // add order command
+        sql = sql.replace(";", " ORDER BY COALESCE(u.fullname, u.user_name);");
+
+        try {
+            return jdbc.query(sql, new UserRowMapper(), query.toLowerCase());
         } catch (DataAccessException e) {
             throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }

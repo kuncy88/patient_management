@@ -51,7 +51,7 @@ public interface ScheduleManager {
      *            open.
      * @param to
      *            End of filter date. If this is null then the end date is open.
-     * @return Object.List object that it is contain Appointment objects.
+     * @return Object.List object which contain Appointment objects.
      */
     public List<Appointment> getAppointments(long userId, Date from, Date to);
 

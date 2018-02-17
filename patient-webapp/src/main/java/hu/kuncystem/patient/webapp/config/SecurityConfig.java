@@ -52,14 +52,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/login").permitAll();
         http.authorizeRequests().antMatchers("/", "/index")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
+        
         http.authorizeRequests().antMatchers("/usermanager")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         http.authorizeRequests().antMatchers("/usermanager/addUser")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         http.authorizeRequests().antMatchers("/usermanager/deleteUser")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR')");
+        http.authorizeRequests().antMatchers("/usermanager/userList")
+            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR')");
+        
         http.authorizeRequests().antMatchers("/mycalendar")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
+        http.authorizeRequests().antMatchers("/mycalendar/saveAppointment")
+            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR')");
+        http.authorizeRequests().antMatchers("/mycalendar/getAppointmentList")
+            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
+        http.authorizeRequests().antMatchers("/mycalendar/removeAppointment")
+            .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR')");
+        
         http.authorizeRequests().antMatchers("/about")
             .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_DOCTOR') or hasRole('ROLE_PATIENT')");
         

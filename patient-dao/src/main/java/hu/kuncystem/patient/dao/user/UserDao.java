@@ -81,6 +81,19 @@ public interface UserDao {
     public User getUser(String name, String password) throws DatabaseException;
 
     /**
+     * Get all of users from the database which matches the pattern. This
+     * pattern will filter the username or the fullname.
+     *
+     * @param query
+     *            This is the filter string which we filter the user list.
+     * 
+     * @return Object.List object which contains User objects.
+     * @throws DatabaseException
+     *             if the query fails
+     */
+    public List<User> getUsersFilterByName(String query) throws DatabaseException;
+
+    /**
      * Insert new user into the database.
      *
      * @param user

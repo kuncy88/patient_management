@@ -9,13 +9,16 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import hu.kuncystem.patient.dao.user.JDBCUserDao;
 import hu.kuncystem.patient.pojo.user.User;
@@ -182,7 +185,7 @@ public class UserAndGroupController {
      * @param model
      * @param userForm
      *            This is an DTO object. When the user send an form then the
-     *            form data will load in this object. The Sping will validate
+     *            form data will load in this object. The Spring will validate
      *            this object automatically.
      * @param result
      *            We can check the result of the validation through the object.
@@ -270,6 +273,25 @@ public class UserAndGroupController {
         }
 
         return page;
+    }
+    
+    @PostMapping(value = "/usermanager/userList", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
+    public UserListFormJsonResponse getUsers(@RequestParam (value = "query") String query) {
+        UserListFormJsonResponse response = new UserListFormJsonResponse();
+        response.setQuery(query);
+        
+        //searching the users and add the user data to the collection
+        List<User> userList = userManager.getUsersByName(query);
+        String name;
+        for(User user: userList){
+            //use the full name or the user name
+            name = (user.getFullname() != null && !user.getFullname().trim().isEmpty()) ? user.getFullname() : user.getUserName();
+            name += " - " + user.getEmail();
+            response.addUserDataToJson(user.getId(), name);
+        }
+        
+        return response;
     }
 
     /**

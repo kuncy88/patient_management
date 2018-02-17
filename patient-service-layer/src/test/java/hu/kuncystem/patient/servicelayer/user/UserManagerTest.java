@@ -71,6 +71,11 @@ public class UserManagerTest {
     }
 
     @Test
+    public void stage23_schoulGetUsersUsingFilter() {
+        assertTrue(userManager.getUsersByName("SeR").size() > 0);
+    }
+
+    @Test
     public void stage3_schouldDeleteUserSuccessfulyWhenUserExists() {
         user = userManager.getUser("user1");
         assertNotNull(user);

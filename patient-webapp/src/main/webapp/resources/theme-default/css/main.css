@@ -56,3 +56,12 @@ div.login-container form {
 	margin-bottom: 20px;
 	height: 300px;
 }
+.cPointer{
+	cursor: pointer;
+}
+.form-input-error{
+	color: red;
+}
+.appointment-change-icon{
+	margin-left: 5px;
+}

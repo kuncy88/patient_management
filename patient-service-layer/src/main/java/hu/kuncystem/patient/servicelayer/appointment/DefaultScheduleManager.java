@@ -30,7 +30,6 @@ import hu.kuncystem.patient.servicelayer.user.UserManager;
 @Scope("prototype")
 public class DefaultScheduleManager implements ScheduleManager {
     public final static int INTERVAL_MIN = 15;
-
     @Autowired
     @Qualifier("JDBCAppointmentDao")
     private AppointmentDao appointmentDao;
@@ -89,7 +88,7 @@ public class DefaultScheduleManager implements ScheduleManager {
         try {
             appointment = appointmentDao.getAppointment(appointmentId);
         } catch (DatabaseException e) {
-            appointment = new Appointment();
+            appointment = null;
         }
 
         return appointment;
