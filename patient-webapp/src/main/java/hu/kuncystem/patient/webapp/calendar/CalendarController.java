@@ -147,4 +147,25 @@ public class CalendarController {
     public boolean removeAppointment(@RequestParam(value = "id") long id) {
         return scheduleManager.remove(id);
     }
+
+    @PostMapping(value = "/mycalendar/reScheduleDay", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
+    public int reScheduleAnDay(@RequestParam(value = "userId") long userId, @RequestParam(value = "oldDate") String oldDate,
+            @RequestParam(value = "newDate") String newDate) {
+        
+        DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT_WITHOUT_TIME);
+        
+        try {
+            boolean ok = scheduleManager.reScheduleDay(userId, formatter.parse(oldDate), formatter.parse(newDate));
+            if(ok){
+                return AppointmentSaveJsonRespone.RESULT_OK;
+            }else{
+                return AppointmentSaveJsonRespone.RESULT_OTHER_ERROR;
+            }
+        } catch (AppointmentReservedException e) {
+            return AppointmentSaveJsonRespone.RESULT_RESERVED;
+        } catch (ParseException e) {
+            return AppointmentSaveJsonRespone.RESULT_DATE_ERROR;
+        }
+    }
 }

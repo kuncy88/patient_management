@@ -3,6 +3,7 @@ package hu.kuncystem.patient.servicelayer.appointment;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -175,6 +176,53 @@ public class ScheduleManagerTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (AppointmentNotExistsException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void stage61_schouldReScheduleDayAnDayToOtherDay() {
+        Date date = null;
+        Date date2 = null;
+        DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT_WITHOUT_TIME);
+        try {
+            date = new SimpleDateFormat(AppointmentDao.DATE_FORMAT).parse("2018-03-07 09:00:00");
+            scheduleManager.createAppointment(doctor.getId(), patient1.getId(), date, "", null);
+
+            date2 = new SimpleDateFormat(AppointmentDao.DATE_FORMAT).parse("2018-03-07 10:15:00");
+            scheduleManager.createAppointment(doctor.getId(), patient2.getId(), date2, "", null);
+
+            boolean ok = scheduleManager.reScheduleDay(doctor.getId(), formatter.parse("2018-03-07"),
+                    formatter.parse("2018-03-10"));
+            assertTrue(ok);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            fail("hooooops! date format is not correct!");
+        }
+    }
+
+    @Test
+    public void stage62_schouldReScheduleDayUnsuccessfullyBecauseAnApointmentNotFree() {
+        Date date = null;
+        Date date2 = null;
+        DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT_WITHOUT_TIME);
+        try {
+            date = new SimpleDateFormat(AppointmentDao.DATE_FORMAT).parse("2018-05-07 09:00:00");
+            scheduleManager.createAppointment(doctor.getId(), patient1.getId(), date, "", null);
+
+            date2 = new SimpleDateFormat(AppointmentDao.DATE_FORMAT).parse("2018-05-07 10:15:00");
+            scheduleManager.createAppointment(doctor.getId(), patient2.getId(), date2, "", null);
+
+            date2 = new SimpleDateFormat(AppointmentDao.DATE_FORMAT).parse("2018-05-10 10:15:00");
+            scheduleManager.createAppointment(doctor.getId(), patient1.getId(), date2, "", null);
+
+            boolean ok = scheduleManager.reScheduleDay(doctor.getId(), formatter.parse("2018-05-07"),
+                    formatter.parse("2018-05-10"));
+            assertTrue(!ok);
+        } catch (ParseException e) {
+            fail("hooooops! date format is not correct!");
+        } catch (AppointmentReservedException e) {
             assertTrue(true);
         }
     }

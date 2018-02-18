@@ -87,6 +87,7 @@ $(document).ready(function() {
 	    },
 	    viewRender: function(view, element){
 	    	var headers = $("th.fc-widget-header:not('.fc-axis'):not('.fc-past')");
+
 	    	var span = $("<span />")
 	    		.addClass("glyphicon glyphicon-refresh appointment-change-icon cPointer")
 	    		.html("&nbsp;").click(function(){
@@ -106,23 +107,96 @@ $.widget("custom.reScheduleFormHandler", {
 		input: {},
 		calendar: null
 	},
+	_var:{
+		oldDate: null
+	},
+	_initPicker: function(){
+		var object = this._html.input.newDate.parent();
+		object.datetimepicker({
+			format: 'YYYY-MM-DD',
+			ignoreReadonly: true
+		}).on("dp.change", function (e) {
+			object.data("DateTimePicker").minDate(moment());
+        });
+	},
+	_initSubmitEvent: function(){
+		var $this = this;
+		
+		this._html.btn.save.on("click", function(){
+			$.ajax({
+				url: $this._html.form.attr("action"),
+				method: "post",
+				data: $this._html.form.serialize(),
+				success: function(data){
+					
+					switch(data){
+						case 1:{	
+							var events = $this._html.calendar.fullCalendar('clientEvents', function(event){
+								return (event.start.format("YYYYMMDD") == moment($this._html.input.oldDate.val()).format("YYYYMMDD"));
+							});
+							
+							var dayDiff = moment($this._html.input.newDate.val()).diff(moment(moment($this._html.input.oldDate.val())), "days");
+							var copyEvents = [];
+							$.each(events, function(i, item){
+								item.start.add(dayDiff, "days");
+								item.end.add(dayDiff, "days");
+								
+								$this._html.calendar.fullCalendar('removeEvents', item.id);
+							});
+							$this._html.calendar.fullCalendar('renderEvents', events);
+							
+							$this.close();
+							break;
+						}
+						case -1:{
+							alert(localization['alert.text.appointment.reserved']);
+							break;
+						}
+						case -2:{
+							alert(localization['alert.text.appointment.date_problem']);
+							break;
+						}
+						default:{
+							alert(localization['alert.text.appointment.unknown_error']);
+							break;
+						}
+					}
+				}
+			});
+		});
+	},
 	_create: function(){
 		this._html.form = this.element.find(".modal-body > form");
 		
-		this._html.btn.save = this._html.form.find("button.submit");
+		this._html.btn.save = $("button.reschedule-submit");
+		
+		this._html.input.newDate = this._html.form.find("#newDate");
+		this._html.input.oldDate = this._html.form.find("#oldDate");
 		
 		this._html.calendar = $('#calendar');
+		
+		this._initPicker();
+		this._initSubmitEvent();
 	},
 	_onClose: function(){
 		this._html.form[0].reset();
 	},
-	show: function(newDate){
+	show: function(oldDate){
 		var $this = this;
+		this._var.oldDate = oldDate;
+		
+		this._html.input.oldDate.val(this._var.oldDate);
 		
 		this.element.modal('show').on('hidden.bs.modal', function () {
 			$this._onClose();
 		});
-	}
+		
+		this._html.input.newDate.parent().data("DateTimePicker").disabledDates([moment(this._var.oldDate)]);
+	},
+	close: function(){
+		this._onClose();
+		this.element.modal('hide');
+	},
 });
 
 $.widget("custom.appointmentFormHandler", {
@@ -269,10 +343,13 @@ $.widget("custom.appointmentFormHandler", {
 		this.changeTitle();
 		$(".form-input-error").hide();
 		
+		console.log(this._html.input.startTime);
 		if(this._var.mode != "update"){
 			this._html.btn.remove.hide();
+			this._html.input.startTime.prop("readonly", true);
 		} else{
 			this._html.btn.remove.show();
+			this._html.input.startTime.prop("readonly", false);
 		}
 		
 		if(id == null){

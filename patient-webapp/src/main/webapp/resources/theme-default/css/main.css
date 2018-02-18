@@ -65,3 +65,6 @@ div.login-container form {
 .appointment-change-icon{
 	margin-left: 5px;
 }
+.hidden{
+	display: none;
+}

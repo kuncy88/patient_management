@@ -22,20 +22,33 @@
         		<h4 class="modal-title"><spring:message code="reschedule.form.title" /></h4>
       		</div>
       		<div class="modal-body">
-      			<form class="form-horizontal reschedule-form" action="/mycalendar/reSchedule" method="post">
+      			<form class="form-horizontal reschedule-form" action="/mycalendar/reScheduleDay" method="post">
       				<div class='form-group'>
-      					<label class="control-label col-sm-2" for="newdate">
+      					<label class="control-label col-sm-3" for="oldDate">
+							<spring:message code="label.current_date" />
+						</label>
+      					<div class="col-sm-6">
+      						<input type="text" class="form-control" name="oldDate" id="oldDate" readonly />
+      					</div>
+      				</div>
+      				
+      				<div class='form-group'>
+      					<label class="control-label col-sm-3" for="newDate">
 							<spring:message code="label.new_date" />
 						</label>
-					    <div class="col-sm-10">
-					      <input type="text" class="form-control" name="newDate" id="newdate" placeholder="<spring:message code="reschedule.form.placeholder.newdate" />">
+					    <div class="col-sm-6 input-group date">
+					    	<input type="text" class="form-control" name="newDate" id="newDate" readonly placeholder="<spring:message code="reschedule.form.placeholder.newdate" />">
+					   		<span class="input-group-addon">
+		                    	<span class="glyphicon glyphicon-calendar"></span>
+		                    </span>
 					    </div>
       				</div>
-      				<input type="hidden" name="oldDate" />
+      				<input type="hidden" name="userId" value="${userId}" />
+      				<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
       			</form>
       		</div>
       		<div class="modal-footer">
-      			<button type="button" class="btn btn-success submit">
+      			<button type="button" class="btn btn-success reschedule-submit">
 					<span class='glyphicon glyphicon-floppy-saved'>&nbsp;</span><spring:message code="label.save" />
 				</button>
         		<button type="button" class="btn btn-default" data-dismiss="modal">
@@ -117,7 +130,7 @@
         			
         			<div class='form-group'>
         				<label class="control-label col-sm-2" for="appointment_start">
-        					<spring:message code="calendar.label.date.start" />:
+        					<spring:message code="calendar.label.appointment" />:
         				</label>
         				<div class="col-sm-4">
         					<input class="form-control" type="datetime" name="startTime" id="appointment_start" readonly />
@@ -126,10 +139,10 @@
 	    					</div>
         				</div>
         				
-        				<label class="control-label col-sm-2" for="appointment_end">
+        				<label class="control-label col-sm-2 hidden" for="appointment_end">
         					<spring:message code="calendar.label.date.end" />:
         				</label>
-        				<div class="col-sm-4">
+        				<div class="col-sm-4 hidden">
         					<input class="form-control" type="datetime" name="endTime" id="appointment_end" readonly />
         					<div class="error-container form-input-error" id="endTime_error">
 	    						<spring:message code='appointmentForm.error.endTime' />

@@ -13,16 +13,18 @@
 <title><tiles:getAsString name="title" /></title>
 
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link href="<c:url value="/resources/css/main.css" />" rel="stylesheet">
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="<c:url value="/resources/css/jquery-ui.css" />" >
+<link rel="stylesheet" href="<c:url value="/resources/css/bootstrap.min.css" />" >
+<link rel="stylesheet" href="<c:url value="/resources/css/main.css" />" >
 <!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="<c:url value="/resources/css/bootstrap-theme.min.css" />" >
+
+<script src="<c:url value="/resources/js/jquery.min.js" />"></script>
+<script src="<c:url value="/resources/js/jquery-ui.min.js" />"></script>
+
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="<c:url value="/resources/js/bootstrap.min.js" />"></script>
+
 <script src="<c:url value="/resources/js/formcheck.js" />"></script>
 <script src="<c:url value="/resources/js/jquery.cookie.js" />"></script>
 

@@ -1,5 +1,8 @@
 package hu.kuncystem.patient.servicelayer.appointment;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -214,6 +217,51 @@ public class DefaultScheduleManager implements ScheduleManager {
             }
         } else {
             throw new AppointmentReservedException();
+        }
+
+        return ok;
+    }
+
+    public boolean reScheduleDay(long userId, Date srcDate, Date targetDate)
+            throws ParseException, AppointmentReservedException {
+        DateFormat format = new SimpleDateFormat(AppointmentDao.DATE_FORMAT_WITHOUT_TIME);
+        DateFormat newFormat = new SimpleDateFormat(AppointmentDao.DATE_FORMAT);
+        DateFormat timeFormat = new SimpleDateFormat(AppointmentDao.TIME_FORMAT);
+
+        String sourceDateString = format.format(srcDate);
+        String targetDateString = format.format(targetDate);
+
+        boolean ok = true;
+
+        List<Appointment> appointmentList = this.getAppointments(userId,
+                newFormat.parse(sourceDateString + " 00:00:00"), newFormat.parse(sourceDateString + " 23:59:59"));
+        if (appointmentList.size() > 0) {
+            Date newAppointmentDate;
+
+            for (Appointment appointment : appointmentList) {
+                newAppointmentDate = newFormat
+                        .parse(targetDateString + " " + timeFormat.format(appointment.getTimet()));
+                if (!isEnableAppointment(userId, newAppointmentDate)) {
+                    throw new AppointmentReservedException();
+                }
+
+                appointment.setTime(newAppointmentDate);
+                appointment.setNotes(null);
+                appointment.setSidid(sessionManager.getSession().getId());
+            }
+
+            // all of appointment is free, we can update these to other day
+            for (Appointment appointment : appointmentList) {
+                try {
+                    ok = appointmentDao.updateAppointment(appointment);
+                    if (!ok) {
+                        break;
+                    }
+                } catch (DatabaseException e) {
+                    ok = false;
+                    break;
+                }
+            }
         }
 
         return ok;
