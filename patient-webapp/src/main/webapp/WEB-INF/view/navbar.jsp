@@ -1,5 +1,6 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 
 <script src="<c:url value="/resources/js/navbar.js" />"></script>
 <nav class="navbar navbar-default pm-page-header">
@@ -16,7 +17,9 @@
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav">
 				<li><a href="/mycalendar"><spring:message code="navbar.menu.mycalendar"/> </a></li>
-				<li><a href="/usermanager"><spring:message code="navbar.menu.usermanager"/> </a></li>
+				<security:authorize access="!hasRole('ROLE_PATIENT')">
+					<li><a href="/usermanager"><spring:message code="navbar.menu.usermanager"/> </a></li>
+				</security:authorize>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li class="dropdown">

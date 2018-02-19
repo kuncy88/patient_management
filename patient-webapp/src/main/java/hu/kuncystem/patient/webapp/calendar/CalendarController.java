@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import hu.kuncystem.patient.dao.appointment.AppointmentDao;
 import hu.kuncystem.patient.pojo.appointment.Appointment;
 import hu.kuncystem.patient.servicelayer.appointment.ScheduleManager;
+import hu.kuncystem.patient.servicelayer.exception.AppointmentNotExistsException;
 import hu.kuncystem.patient.servicelayer.exception.AppointmentReservedException;
 
 /**
@@ -79,10 +81,30 @@ public class CalendarController {
                             appointmentForm.getDescription(), notes);
                     ok = (appointment.getId() > 0);
                     appointmentForm.setAppointmentId(appointment.getId());
+                    
                 } else {
-                    ok = scheduleManager.updateAppointment(appointmentForm.getAppointmentId().longValue(),
-                            appointmentForm.getDoctorId(), appointmentForm.getPatientId(),
-                            appointmentForm.getDescription(), notes);
+                    DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT);
+                    Date formatDate = formatter.parse(appointmentForm.getStartTime());
+
+                    appointment = this.getAppointment(appointmentForm.getAppointmentId());
+                    if (appointment.getTimet().compareTo(formatDate) != 0) {
+                        try {
+                            ok = scheduleManager.reScheduleAppointment(appointmentForm.getDoctorId(),
+                                    appointment.getTimet(), formatDate);
+                        } catch (AppointmentReservedException e) {
+                            // this appointment is used by other user
+                            response.setResult(AppointmentSaveJsonRespone.RESULT_RESERVED);
+                            ok = false;
+                        } catch (AppointmentNotExistsException e) {
+                            ok = false;
+                        }
+                    }
+
+                    if (ok) {
+                        ok = scheduleManager.updateAppointment(appointmentForm.getAppointmentId().longValue(),
+                                appointmentForm.getDoctorId(), appointmentForm.getPatientId(),
+                                appointmentForm.getDescription(), notes);
+                    }
                 }
 
                 if (ok) {
@@ -92,7 +114,8 @@ public class CalendarController {
                 } else {
                     appointment = null;
                     // perhapes databse error
-                    response.setResult(AppointmentSaveJsonRespone.RESULT_OTHER_ERROR);
+                    if (response.getResult() == null)
+                        response.setResult(AppointmentSaveJsonRespone.RESULT_OTHER_ERROR);
                 }
             } catch (ParseException e) {
                 // the date format was not correct
@@ -150,16 +173,16 @@ public class CalendarController {
 
     @PostMapping(value = "/mycalendar/reScheduleDay", produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public int reScheduleAnDay(@RequestParam(value = "userId") long userId, @RequestParam(value = "oldDate") String oldDate,
-            @RequestParam(value = "newDate") String newDate) {
-        
+    public int reScheduleAnDay(@RequestParam(value = "userId") long userId,
+            @RequestParam(value = "oldDate") String oldDate, @RequestParam(value = "newDate") String newDate) {
+
         DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT_WITHOUT_TIME);
-        
+
         try {
             boolean ok = scheduleManager.reScheduleDay(userId, formatter.parse(oldDate), formatter.parse(newDate));
-            if(ok){
+            if (ok) {
                 return AppointmentSaveJsonRespone.RESULT_OK;
-            }else{
+            } else {
                 return AppointmentSaveJsonRespone.RESULT_OTHER_ERROR;
             }
         } catch (AppointmentReservedException e) {

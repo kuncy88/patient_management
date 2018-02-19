@@ -28,6 +28,7 @@ $(document).ready(function() {
 		weekNumbers: true,
 	    weekNumbersWithinDays: true,
 	    weekNumberCalculation: 'ISO',
+	    titleFormat: 'YYYY, MMM D',
 	    timeFormat: 'HH:mm',
 	    navLinks: true,
 	    editable: true,
@@ -114,10 +115,12 @@ $.widget("custom.reScheduleFormHandler", {
 		var object = this._html.input.newDate.parent();
 		object.datetimepicker({
 			format: 'YYYY-MM-DD',
-			ignoreReadonly: true
-		}).on("dp.change", function (e) {
-			object.data("DateTimePicker").minDate(moment());
-        });
+			ignoreReadonly: true,
+			minDate: moment().format("YYYY-MM-DD 00:00:00"),
+			locale:  moment.locale('en', {
+		        week: { dow: 1 }
+		    }),
+		});
 	},
 	_initSubmitEvent: function(){
 		var $this = this;
@@ -343,13 +346,22 @@ $.widget("custom.appointmentFormHandler", {
 		this.changeTitle();
 		$(".form-input-error").hide();
 		
-		console.log(this._html.input.startTime);
+		this._html.input.startTime.parent().datetimepicker({
+			format: 'YYYY-MM-DD HH:mm:00',
+            sideBySide: true,
+            stepping: unitInterval,
+			minDate: moment().format("YYYY-MM-DD 00:00:00"),
+			locale:  moment.locale('en', {
+		        week: { dow: 1 }
+		    }),
+		});
+		
 		if(this._var.mode != "update"){
 			this._html.btn.remove.hide();
-			this._html.input.startTime.prop("readonly", true);
+			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', false);
 		} else{
 			this._html.btn.remove.show();
-			this._html.input.startTime.prop("readonly", false);
+			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', true);
 		}
 		
 		if(id == null){

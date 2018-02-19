@@ -24,7 +24,7 @@ public class AppointmentSaveJsonRespone {
 
     private Map<String, String> errorMessages;
 
-    private int result;
+    private Integer result;
 
     public AppointmentSaveJsonRespone() {
     }
@@ -53,7 +53,7 @@ public class AppointmentSaveJsonRespone {
         this.errorMessages = errorMessages;
     }
 
-    public int getResult() {
+    public Integer getResult() {
         return result;
     }
 

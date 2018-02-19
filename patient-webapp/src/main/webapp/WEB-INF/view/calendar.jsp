@@ -25,7 +25,7 @@
       			<form class="form-horizontal reschedule-form" action="/mycalendar/reScheduleDay" method="post">
       				<div class='form-group'>
       					<label class="control-label col-sm-3" for="oldDate">
-							<spring:message code="label.current_date" />
+							<spring:message code="label.current_date" />:
 						</label>
       					<div class="col-sm-6">
       						<input type="text" class="form-control" name="oldDate" id="oldDate" readonly />
@@ -34,13 +34,15 @@
       				
       				<div class='form-group'>
       					<label class="control-label col-sm-3" for="newDate">
-							<spring:message code="label.new_date" />
+							<spring:message code="label.new_date" />:
 						</label>
-					    <div class="col-sm-6 input-group date">
-					    	<input type="text" class="form-control" name="newDate" id="newDate" readonly placeholder="<spring:message code="reschedule.form.placeholder.newdate" />">
-					   		<span class="input-group-addon">
-		                    	<span class="glyphicon glyphicon-calendar"></span>
-		                    </span>
+					    <div class="col-sm-6 date">
+					    	<div class="input-group">
+						    	<input type="text" class="form-control" name="newDate" id="newDate" readonly placeholder="<spring:message code="reschedule.form.placeholder.newdate" />">
+						   		<span class="input-group-addon">
+			                    	<span class="glyphicon glyphicon-calendar"></span>
+			                    </span>
+		                    </div>
 					    </div>
       				</div>
       				<input type="hidden" name="userId" value="${userId}" />
@@ -132,23 +134,22 @@
         				<label class="control-label col-sm-2" for="appointment_start">
         					<spring:message code="calendar.label.appointment" />:
         				</label>
-        				<div class="col-sm-4">
-        					<input class="form-control" type="datetime" name="startTime" id="appointment_start" readonly />
-        					<div class="error-container form-input-error" id="startTime_error">
+        				<div class="col-sm-5">
+        					<div class="input-group">
+	        					<input class="form-control" type="datetime" name="startTime" id="appointment_start" readonly />
+	        					<span class="input-group-addon">
+			                    	<span class="glyphicon glyphicon-calendar"></span>
+			                    </span>
+		                    </div>
+		                    <div class="error-container form-input-error" id="startTime_error">
 	    						<spring:message code='appointmentForm.error.startTime' />
 	    					</div>
         				</div>
-        				
-        				<label class="control-label col-sm-2 hidden" for="appointment_end">
-        					<spring:message code="calendar.label.date.end" />:
-        				</label>
-        				<div class="col-sm-4 hidden">
-        					<input class="form-control" type="datetime" name="endTime" id="appointment_end" readonly />
-        					<div class="error-container form-input-error" id="endTime_error">
-	    						<spring:message code='appointmentForm.error.endTime' />
-	    					</div>
-        				</div>
         			</div>
+        			
+        			
+        			
+        			<input class="form-control" type="hidden" name="endTime" id="appointment_end" readonly />
         			
         			<input type="hidden" name="appointmentId" value="0" />
         			<input type="hidden" name="patientId" value="0" />
