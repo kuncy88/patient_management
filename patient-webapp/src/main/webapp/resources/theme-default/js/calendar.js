@@ -1,10 +1,13 @@
-var unitInterval = 15;				//in minutes
+//calendar unit in minutes
+var unitInterval = 15;
+//used date format
 var dateformat = "YYYY-MM-DD HH:mm:ss";
+
 $(document).ready(function() {
-	//resize on the start
+	//resize the calendar to the container end of the page load
 	resizeCalendarContainer();
 	
-	//resize on the resize event
+	//resize resize the calendar to the container when the user resize the window
 	$( window ).resize(function() {
 		resizeCalendarContainer();
 	});
@@ -42,19 +45,25 @@ $(document).ready(function() {
 	    	start: '00:00', 
 	        end: '24:00', 
 	    },
+	    //this is the select event when the user select the units
 	    select: function(start, end, jsEvent, view) {
+	    	//we have to clone this object because this is a references.
+	    	//if we didn't clone this, we would change the original value.
 	    	var tmpStart = start.clone();
 	    	var tmpEnd = end.clone();
-
+	    	
+	    	//with this condition we can select just one unit, which point to the future
 	    	if (start.isBefore(moment()) || !start.add(unitInterval, 'minutes').isSame(end, 'minutes')){
 	    		
 	            $('#calendar').fullCalendar('unselect');
 	            return false;
 	        }
-	    	
+	    	//show the handler form
 	    	$('#calendarFormModal').appointmentFormHandler('show', 'new', null, tmpStart, tmpEnd);
 	    },
+	    //load all of events into the calendar
 	    events: function(start, end, timezone, callback) {
+	    	//use the ajax request to reach the data
 	        $.ajax({
 	        	url: '/mycalendar/getAppointmentList',
 	        	method: 'post',
@@ -69,386 +78,54 @@ $(document).ready(function() {
 	        		if(data != null){
 	        			var events = [];
 	        			$.each(data, function(i, item){
+	        				//create an event
 	        				events.push(createAppointmentEvent(item));
 	        			});
+	        			//add events to the calendar
 	        			callback(events);
 	        		}
 	        	}
 	        });
 	    },
+	    //after we added an event to the calendar
 	    eventAfterRender: function(event, element) {
+	    	//add tooltip
 	    	element.attr("title", event.description)
 	    	element.data("html", true);
 	    	element.tooltip();
 	    },
+	    //if the user click an event
 	    eventClick: function(calEvent, jsEvent, view) {
+	    	//the click event is allowed if the event is in the future
 	    	if (!calEvent.start.isBefore(moment())){
+	    		//show the handler form
 	    		$('#calendarFormModal').appointmentFormHandler('show', 'update', calEvent.id);
 	    	}
 	    },
+	    //change the view elements
 	    viewRender: function(view, element){
 	    	var headers = $("th.fc-widget-header:not('.fc-axis'):not('.fc-past')");
-
+	    	//add extra icon to the column header(use this the reschedule)
 	    	var span = $("<span />")
 	    		.addClass("glyphicon glyphicon-refresh appointment-change-icon cPointer")
 	    		.html("&nbsp;").click(function(){
+	    			//reschedule an day to the another day(show the form)
 	    			var date = $(this).parent().data("date");
 	    			$('#reScheduleFormModal').reScheduleFormHandler('show', date);
 	    		});
-	    	headers.append( span);
+	    	headers.append(span);
 	    }
 	});
 
 });
 
-$.widget("custom.reScheduleFormHandler", {
-	_html:{
-		form: null,
-		btn: {},
-		input: {},
-		calendar: null
-	},
-	_var:{
-		oldDate: null
-	},
-	_initPicker: function(){
-		var object = this._html.input.newDate.parent();
-		object.datetimepicker({
-			format: 'YYYY-MM-DD',
-			ignoreReadonly: true,
-			minDate: moment().format("YYYY-MM-DD 00:00:00"),
-			locale:  moment.locale('en', {
-		        week: { dow: 1 }
-		    }),
-		});
-	},
-	_initSubmitEvent: function(){
-		var $this = this;
-		
-		this._html.btn.save.on("click", function(){
-			$.ajax({
-				url: $this._html.form.attr("action"),
-				method: "post",
-				data: $this._html.form.serialize(),
-				success: function(data){
-					
-					switch(data){
-						case 1:{	
-							var events = $this._html.calendar.fullCalendar('clientEvents', function(event){
-								return (event.start.format("YYYYMMDD") == moment($this._html.input.oldDate.val()).format("YYYYMMDD"));
-							});
-							
-							var dayDiff = moment($this._html.input.newDate.val()).diff(moment(moment($this._html.input.oldDate.val())), "days");
-							var copyEvents = [];
-							$.each(events, function(i, item){
-								item.start.add(dayDiff, "days");
-								item.end.add(dayDiff, "days");
-								
-								$this._html.calendar.fullCalendar('removeEvents', item.id);
-							});
-							$this._html.calendar.fullCalendar('renderEvents', events);
-							
-							$this.close();
-							break;
-						}
-						case -1:{
-							alert(localization['alert.text.appointment.reserved']);
-							break;
-						}
-						case -2:{
-							alert(localization['alert.text.appointment.date_problem']);
-							break;
-						}
-						default:{
-							alert(localization['alert.text.appointment.unknown_error']);
-							break;
-						}
-					}
-				}
-			});
-		});
-	},
-	_create: function(){
-		this._html.form = this.element.find(".modal-body > form");
-		
-		this._html.btn.save = $("button.reschedule-submit");
-		
-		this._html.input.newDate = this._html.form.find("#newDate");
-		this._html.input.oldDate = this._html.form.find("#oldDate");
-		
-		this._html.calendar = $('#calendar');
-		
-		this._initPicker();
-		this._initSubmitEvent();
-	},
-	_onClose: function(){
-		this._html.form[0].reset();
-	},
-	show: function(oldDate){
-		var $this = this;
-		this._var.oldDate = oldDate;
-		
-		this._html.input.oldDate.val(this._var.oldDate);
-		
-		this.element.modal('show').on('hidden.bs.modal', function () {
-			$this._onClose();
-		});
-		
-		this._html.input.newDate.parent().data("DateTimePicker").disabledDates([moment(this._var.oldDate)]);
-	},
-	close: function(){
-		this._onClose();
-		this.element.modal('hide');
-	},
-});
-
-$.widget("custom.appointmentFormHandler", {
-	_var:{
-		mode: "new"
-	},
-	_html:{
-		form: null,
-		btn: {},
-		input: {},
-		calendar: null
-	},
-	_create : function() {
-		this._html.form = this.element.find(".modal-body > form");
-		
-		this._html.btn.remove = $("button.appointment-remove");
-		this._html.btn.save = $("button.appointment-submit");
-		this._html.btn.addUser = this._html.form.find("#add_new_user");
-		
-		this._html.input.patient = this._html.form.find("input#patient");
-		this._html.input.patientId = this._html.form.find("input[name='patientId']");
-		this._html.input.appointmentId = this._html.form.find("input[name='appointmentId']");
-		this._html.input.csrf = this._html.form.find("#csrf");
-		this._html.input.startTime = this._html.form.find("#appointment_start");
-		this._html.input.endTime = this._html.form.find("#appointment_end");
-		this._html.input.description = this._html.form.find("#description");
-		this._html.input.tags = this._html.form.find("#notes");
-		
-		this._html.calendar = $('#calendar');
-		
-		this._initSubmitEvent();
-		this._iniRemoveEvent();
-		this._initPatientAutocomplete();
-		this._initAddNewUserEvent();
-	},
-	_initSubmitEvent: function(){
-		var $this = this;
-		this._html.btn.save.click(function(){
-			$(this).prop("disabled", true);
-			$.post({
-				url: $this._html.form.attr("action"),
-				data: $this._html.form.serialize(),
-				success: function(data){
-
-					if(data.validated){			//the form data was valid
-						switch(data.result){
-							case 1:{	
-								$this._html.calendar.fullCalendar('removeEvents', data.appointment.id);
-								
-								$this._html.calendar.fullCalendar('renderEvent', 
-									createAppointmentEvent(data.appointment));
-								
-								$this.close();
-								break;
-							}
-							case -1:{
-								alert(localization['alert.text.appointment.reserved']);
-								break;
-							}
-							case -2:{
-								alert(localization['alert.text.appointment.date_problem']);
-								break;
-							}
-							default:{
-								alert(localization['alert.text.appointment.unknown_error']);
-								break;
-							}
-						}
-					} else {
-						$(".form-input-error").hide();
-						$.each(data.errorMessages, function(i, text){
-							$("#" + i + "_error").show();
-						});
-					}
-					
-					$this._html.btn.save.prop("disabled", false);
-				}
-			});			
-		});
-	},
-	_iniRemoveEvent: function(){
-		var $this = this;
-		
-		this._html.btn.remove.on("click", function(){
-			$this._html.btn.remove.attr("disabled", true);
-			
-			if(confirm(localization['confirm.text.appointment.delete'])){
-				var id = $this._html.input.appointmentId.val();
-				
-				$.post('/mycalendar/removeAppointment', { 
-		        	id: id,
-		        	_csrf: $this._html.input.csrf.val()
-		        }, function (data) {
-		        	if(data != null && data == true){
-		        		$this._html.calendar.fullCalendar('removeEvents', id);
-		        		
-						$this.close();
-		        	} else {
-		        		alert(localization['alert.text.appointment.delete_error'])
-		        	}
-		        	$this._html.btn.remove.attr("disabled", false);
-		        });
-			} else {
-				$this._html.btn.remove.attr("disabled", false);
-			}
-		});
-	},
-	_initPatientAutocomplete: function(){
-		var form = this._html.form;
-		var $this = this;
-	
-		this._html.input.patient.typeahead({
-			displayKey: 'name',
-			source:  function (query, process) {
-		       $.post('/usermanager/userList', { 
-		        		query: query,
-		        		_csrf: $this._html.input.csrf.val()
-		        	}, function (data) {
-		        		if(data != null && data.userList != null){		        	        
-		        	        process(data.userList);
-		        		}else{
-		        			process({});
-		        		}
-		        	}
-		        );
-			},
-			updater: function(item) {
-				$this._html.input.patientId.val(item.id);
-		        return item;
-		    }
-		}).on("input", function(){
-			if($(this).val().length == 0){
-				$this._html.input.patientId.val("");
-			}
-		});
-	},
-	_initAddNewUserEvent: function(){
-		this._html.btn.addUser.click(function(){
-			var win = window.open($(this).data("href"), '_blank');
-			win.focus();
-		});
-	},
-	_changeModalContent: function(id, start, end){
-		this.changeTitle();
-		$(".form-input-error").hide();
-		
-		this._html.input.startTime.parent().datetimepicker({
-			format: 'YYYY-MM-DD HH:mm:00',
-            sideBySide: true,
-            stepping: unitInterval,
-			minDate: moment().format("YYYY-MM-DD 00:00:00"),
-			locale:  moment.locale('en', {
-		        week: { dow: 1 }
-		    }),
-		});
-		
-		if(this._var.mode != "update"){
-			this._html.btn.remove.hide();
-			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', false);
-		} else{
-			this._html.btn.remove.show();
-			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', true);
-		}
-		
-		if(id == null){
-			start = (start == null) ? "" : start.format(dateformat);
-			end = (end == null) ? "" : end.format(dateformat);
-			
-			this._html.input.startTime.val(start);
-			this._html.input.endTime.val(end);
-		}else{
-			this._loadDataFromDatabase(id);
-		}
-	},
-	_onClose: function(){
-		this._html.form[0].reset();
-		this._html.input.patientId.val("0");
-		this._html.input.appointmentId.val("");
-	},
-	_loadDataFromDatabase: function(id){
-		var $this = this;
-		$.post('/mycalendar/getAppointment', { 
-	    		id: id,
-	    		_csrf: this._html.form.find("#csrf").val()
-	    	}, function (data) {
-	    		if(data != null){
-	    			$this._html.input.patientId.val(data.patient.id);
-	    			$this._html.input.appointmentId.val(data.id);
-	    			
-	    			var name = data.patient.fullname;
-    				if(name == null || name.length == 0){
-    					name = data.patient.userName;
-    				}
-	    			$this._html.input.patient.val(name + " - " + data.patient.email);
-	    			$this._html.input.description.val(data.description);
-	    			
-	    			var notes = "";
-	    			if(data.notes != null && data.notes.length > 0 && data.notes[0] != ""){
-	    				notes = data.notes.join(" ");
-    				}
-	    			$this._html.input.tags.val(notes);
-	    			
-	    			$this._html.input.startTime.val(moment(data.timet).format(dateformat));
-	    			$this._html.input.endTime.val(moment(data.timet).add(unitInterval, 'minutes').format(dateformat));
-	    		}else{
-	    			alert(localization['alert.text.load.failed']);
-	    		}
-	    	}
-	    );
-	},
-	show: function(mode, id, start, end) {
-		this._var.mode = mode;
-		var $this = this;
-		
-		this._changeModalContent(id, start, end);
-		
-		this.element.modal('show').on('hidden.bs.modal', function () {
-			$this._onClose();
-		});		
-	},
-	close: function(){
-		this._onClose();
-		this.element.modal('hide');
-	},
-	changeTitle: function(title){
-		if(typeof title == "undefined"){
-			switch(this._var.mode){
-				case "new": {
-					title = localization['calendar.form.title.new'];
-					break;
-				} 
-				case "update": {
-					title = localization['calendar.form.title.update'];
-					break;
-				} 
-				case "show": {
-					title = localization['calendar.form.title.show'];
-					break;
-				} 
-				default: {
-					title = "";
-					break;
-				}
-			}
-		}
-		this.element.find(".modal-title").html(title);
-	}
-});
-
+/**
+ * Create an appointment event which we can add to the calendar.
+ * 
+ * @param item Data from database which we can make the event object
+ * 
+ * @return The new event object.
+ * */
 function createAppointmentEvent(item){
 	var user = item.patient;
 	

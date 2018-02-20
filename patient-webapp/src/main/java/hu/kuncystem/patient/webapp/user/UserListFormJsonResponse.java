@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * this for comment of classes
+ * This class is used to the server response which contains the users data.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. febr. 13.
@@ -12,8 +12,10 @@ import java.util.List;
  * @version 1.0
  */
 public class UserListFormJsonResponse {
+    //users data list
     private List<UserDataToJson> userList;
 
+    //user filter string
     private String query;
 
     public UserListFormJsonResponse() {
@@ -47,6 +49,9 @@ public class UserListFormJsonResponse {
         userList.add(userDataToJson);
     }
     
+    /*
+     * This class contains an user data 
+     * */
     public static final class UserDataToJson{
         private long id;
         private String name;

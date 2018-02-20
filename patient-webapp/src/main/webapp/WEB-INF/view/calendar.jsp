@@ -8,7 +8,10 @@
 <script src='<c:url value="/resources/component/calendar/fullcalendar.min.js" />'></script>
 <script src='<c:url value="/resources/component/bs-datetimepicker/datetimepicker.min.js" />'></script>
 <script src='<c:url value="/resources/component/typeahead/typeahead.min.js" />'></script>
+
 <script src="<c:url value="/resources/js/calendar.js" />"></script>
+<script src="<c:url value="/resources/js/jquery.widget.form.reschedule.js" />"></script>
+<script src="<c:url value="/resources/js/jquery.widget.form.appointment.js" />"></script>
 
 <div id="calendar"></div>
 

@@ -6,7 +6,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * this for comment of classes
+ * This is a DTO object which we use that validate and use an form data.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. febr. 13.

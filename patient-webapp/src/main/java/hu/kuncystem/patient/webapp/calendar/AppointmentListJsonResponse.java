@@ -3,7 +3,7 @@ package hu.kuncystem.patient.webapp.calendar;
 import hu.kuncystem.patient.pojo.user.User;
 
 /**
- * this for comment of classes
+ * This class is used to the server response which contains an appointment data.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. febr. 15.
