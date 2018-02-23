@@ -1,5 +1,7 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
+
 
 <link href='<c:url value="/resources/component/calendar/fullcalendar.min.css" />' rel='stylesheet' />
 <link href='<c:url value="/resources/component/bs-datetimepicker/datetimepicker.min.css" />' rel='stylesheet' />
@@ -42,8 +44,8 @@
 					    <div class="col-sm-6 date">
 					    	<div class="input-group">
 						    	<input type="text" class="form-control" name="newDate" id="newDate" readonly placeholder="<spring:message code="reschedule.form.placeholder.newdate" />">
-						   		<span class="input-group-addon">
-			                    	<span class="glyphicon glyphicon-calendar"></span>
+						   		<span class="input-group-addon cPointer">
+			                    	<span class="glyphicon glyphicon-calendar" title="<spring:message code="calendar.title.opencalendar" />"></span>
 			                    </span>
 		                    </div>
 					    </div>
@@ -87,8 +89,12 @@
       							<input class="form-control" id="patient" 
         						placeholder="<spring:message code="calendar.label.patient.placeholder" />" />
       							<span class="input-group-btn">
-	        						<button type="button" id="add_new_user" class="btn btn-info" data-href="/usermanager/addUser">
+	        						<button type="button" id="add_new_user" class="btn btn-info cPointer" 
+	        							data-href="/usermanager/addUser" 
+	        							title="<spring:message code="calendar.title.addpatient" />">
+	        							
 		        						<spring:message code="label.add" />
+		        						&nbsp;<span class="glyphicon glyphicon-new-window"></span>
 		        					</button>
 	        					</span>
       						</div>
@@ -99,7 +105,7 @@
         			</div>
         			
         			<div class='form-group' title="<spring:message code="calendar.label.description.placeholder" />">
-        				<label  class="control-label col-sm-2" for="notes">
+        				<label  class="control-label col-sm-2" for="description">
         					<spring:message code="calendar.label.description" />:
         				</label>
         				<div class="col-sm-10">
@@ -140,8 +146,8 @@
         				<div class="col-sm-5">
         					<div class="input-group">
 	        					<input class="form-control" type="datetime" name="startTime" id="appointment_start" readonly />
-	        					<span class="input-group-addon">
-			                    	<span class="glyphicon glyphicon-calendar"></span>
+	        					<span class="input-group-addon cPointer">
+			                    	<span class="glyphicon glyphicon-calendar" title="<spring:message code="calendar.title.opencalendar" />" ></span>
 			                    </span>
 		                    </div>
 		                    <div class="error-container form-input-error" id="startTime_error">
@@ -149,8 +155,6 @@
 	    					</div>
         				</div>
         			</div>
-        			
-        			
         			
         			<input class="form-control" type="hidden" name="endTime" id="appointment_end" readonly />
         			
@@ -179,11 +183,13 @@
 	</div>
 </div>
 
+<security:authorize access="hasRole('ROLE_PATIENT')" var="hasRolePatient"></security:authorize>
 <script type="text/javascript">
 	var localization = new Array();
 	localization['calendar.form.title.new'] = "<spring:message code='calendar.form.title.new' />";
 	localization['calendar.form.title.update'] = "<spring:message code='calendar.form.title.update' />";
 	localization['calendar.form.title.show'] = "<spring:message code='calendar.form.title.show' />";
+	localization['calendar.title.rescheduleday'] = "<spring:message code='calendar.title.rescheduleday' />";
 	
 	localization['alert.text.load.failed'] = "<spring:message code='alert.text.load.failed' />";
 	localization['alert.text.appointment.reserved'] = "<spring:message code='alert.text.appointment.reserved' />";
@@ -194,4 +200,5 @@
 	localization['confirm.text.appointment.delete'] = "<spring:message code='confirm.text.appointment.delete' />";
 	
 	var loginUser = "${userId}";
+	var hasRolePatient = ('${hasRolePatient}' == "true");
 </script>

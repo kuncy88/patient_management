@@ -68,3 +68,10 @@ div.login-container form {
 .hidden{
 	display: none;
 }
+div.pm-main-alert{
+	position: absolute;
+	top: 10px;
+	left: 25%;
+	opacity: 0.8 !important;
+	z-index: 100;
+}

@@ -34,19 +34,23 @@ $(document).ready(function() {
 	    titleFormat: 'YYYY, MMM D',
 	    timeFormat: 'HH:mm',
 	    navLinks: true,
-	    editable: true,
+	    editable: !hasRolePatient,
 	    allDaySlot: false,
 	    slotDuration: '00:15:00',
 	    slotLabelFormat: 'HH:mm',
 	    slotEventOverlap: false,
-	    selectable: true,
-	    selectHelper: true,
+	    selectable: !hasRolePatient,
+	    selectHelper: !hasRolePatient,
 	    selectConstraint:{
 	    	start: '00:00', 
 	        end: '24:00', 
 	    },
 	    //this is the select event when the user select the units
 	    select: function(start, end, jsEvent, view) {
+	    	if(hasRolePatient) {
+	    		$('#calendar').fullCalendar('unselect');
+	            return false;
+	    	}
 	    	//we have to clone this object because this is a references.
 	    	//if we didn't clone this, we would change the original value.
 	    	var tmpStart = start.clone();
@@ -96,24 +100,30 @@ $(document).ready(function() {
 	    },
 	    //if the user click an event
 	    eventClick: function(calEvent, jsEvent, view) {
+	    	
 	    	//the click event is allowed if the event is in the future
-	    	if (!calEvent.start.isBefore(moment())){
+	    	if(hasRolePatient || calEvent.start.isBefore(moment())){
+	    		$('#calendarFormModal').appointmentFormHandler('show', 'show', calEvent.id);
+	    	}else if (!calEvent.start.isBefore(moment())){
 	    		//show the handler form
 	    		$('#calendarFormModal').appointmentFormHandler('show', 'update', calEvent.id);
 	    	}
 	    },
 	    //change the view elements
 	    viewRender: function(view, element){
-	    	var headers = $("th.fc-widget-header:not('.fc-axis'):not('.fc-past')");
-	    	//add extra icon to the column header(use this the reschedule)
-	    	var span = $("<span />")
-	    		.addClass("glyphicon glyphicon-refresh appointment-change-icon cPointer")
-	    		.html("&nbsp;").click(function(){
-	    			//reschedule an day to the another day(show the form)
-	    			var date = $(this).parent().data("date");
-	    			$('#reScheduleFormModal').reScheduleFormHandler('show', date);
-	    		});
-	    	headers.append(span);
+	    	if(!hasRolePatient){
+		    	var headers = $("th.fc-widget-header:not('.fc-axis'):not('.fc-past')");
+		    	//add extra icon to the column header(use this the reschedule)
+		    	var span = $("<span />")
+		    		.addClass("glyphicon glyphicon-share-alt appointment-change-icon cPointer")
+		    		.attr("title", localization['calendar.title.rescheduleday'])
+		    		.html("&nbsp;").click(function(){
+		    			//reschedule an day to the another day(show the form)
+		    			var date = $(this).parent().data("date");
+		    			$('#reScheduleFormModal').reScheduleFormHandler('show', date);
+		    		});
+		    	headers.append(span);
+	    	}
 	    }
 	});
 
@@ -128,6 +138,9 @@ $(document).ready(function() {
  * */
 function createAppointmentEvent(item){
 	var user = item.patient;
+	if(hasRolePatient){
+		user = item.doctor;
+	}
 	
 	var name = user.fullname;
 	var description = user.email;

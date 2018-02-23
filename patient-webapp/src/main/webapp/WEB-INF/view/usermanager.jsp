@@ -7,11 +7,6 @@
 <c:set var="next_offset" value="${offset + limit}" />
 <c:set var="prev_offset" value="${offset - limit}" />
 
-
-<c:if test="${not empty message}">
-	<div class='alert alert-${cls}'>${message}</div>
-</c:if>
-
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<div class="container-fluid panel-container">
@@ -68,12 +63,12 @@
 						<td>
 							<button type="button" class="btn btn-xs btn-primary"
 								onclick="location.href='/usermanager/addUser?row=${user.id}'">
-								<span class="glyphicon glyphicon-edit"></span>&nbsp;
+								<span class="glyphicon glyphicon-edit cPointer" title="<spring:message code="user.title.modify" />"></span>&nbsp;
 							</button>
 							<button type="button" class="btn btn-xs btn-danger delete-user"
 								data-id="<c:out value="${user.id}" />"
 								data-dialog="<spring:message code="dialog.text.delete" />">
-								<span class="glyphicon glyphicon-trash"></span>&nbsp;
+								<span class="glyphicon glyphicon-trash cPointer" title="<spring:message code="user.title.remove" />"></span>&nbsp;
 							</button>
 						</td>
 					</tr>

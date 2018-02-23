@@ -1,6 +1,6 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
+<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 
 <script src="<c:url value="/resources/js/navbar.js" />"></script>
 <nav class="navbar navbar-default pm-page-header">

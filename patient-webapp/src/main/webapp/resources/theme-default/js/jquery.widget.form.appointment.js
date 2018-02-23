@@ -29,6 +29,8 @@ $.widget("custom.appointmentFormHandler", {
 		this._html.btn.remove = $("button.appointment-remove");
 		this._html.btn.save = $("button.appointment-submit");
 		this._html.btn.addUser = this._html.form.find("#add_new_user");
+		this._html.btn.addUser.data("text", this._html.btn.addUser.html());
+		this._html.btn.addUser.data("title", this._html.btn.addUser.attr("title"));
 		
 		this._html.input.patient = this._html.form.find("input#patient");
 		this._html.input.patientId = this._html.form.find("input[name='patientId']");
@@ -174,7 +176,7 @@ $.widget("custom.appointmentFormHandler", {
 		this.changeTitle();
 		
 		$(".form-input-error").hide();
-		
+
 		//add datetime picker widget
 		this._html.input.startTime.parent().datetimepicker({
 			format: 'YYYY-MM-DD HH:mm:00',
@@ -185,14 +187,47 @@ $.widget("custom.appointmentFormHandler", {
 		        week: { dow: 1 }
 		    }),
 		});
-		
-		if(this._var.mode != "update"){
+		//Set the visible and invisible element. It is depend on the selected mode.
+		if(this._var.mode == "new"){
+			this._html.btn.save.show();
 			this._html.btn.remove.hide();
+			
+			this._html.input.description.removeClass("readonly").addClass("editable");
+			this._html.input.tags.removeClass("readonly").addClass("editable");
+			this._html.input.patient.removeClass("readonly").addClass("editable");
+			this._html.btn.addUser.prop("disabled", false)
+				.html(this._html.btn.addUser.data("text"))
+				.attr("title", this._html.btn.addUser.data("title"));
+			
 			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', false);
-		} else{
+		} else if(this._var.mode == 'update'){
+			this._html.btn.save.show();
 			this._html.btn.remove.show();
+			
+			this._html.input.description.removeClass("readonly").addClass("editable");
+			this._html.input.tags.removeClass("readonly").addClass("editable");
+			this._html.input.patient.removeClass("readonly").addClass("editable");
+			this._html.btn.addUser.prop("disabled", false)
+				.html(this._html.btn.addUser.data("text"))
+				.attr("title", this._html.btn.addUser.data("title"));
+			
 			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', true);
-		}
+		} else if(this._var.mode == 'show'){
+			this._html.btn.remove.hide();
+			this._html.btn.save.hide();
+			
+			this._html.input.description.addClass("readonly").removeClass("editable");
+			this._html.input.tags.addClass("readonly").removeClass("editable");
+			this._html.input.patient.addClass("readonly").removeClass("editable");
+			this._html.btn.addUser.prop("disabled", true)
+				.html("&nbsp;")
+				.attr("title", "");
+			
+			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', false);
+		} 
+		
+		$(".readonly").prop("readonly", true);
+		$(".editable").prop("readonly", false);
 		
 		if(id == null){			//we will add new event
 			start = (start == null) ? "" : start.format(dateformat);
@@ -219,14 +254,22 @@ $.widget("custom.appointmentFormHandler", {
 	    		_csrf: this._html.form.find("#csrf").val()
 	    	}, function (data) {
 	    		if(data != null){	//set the value of form element
+	    			var user = data.patient;
+	    			if(hasRolePatient && $this._var.mode == 'show'){
+	    				user = data.doctor;
+	    			}
 	    			$this._html.input.patientId.val(data.patient.id);
 	    			$this._html.input.appointmentId.val(data.id);
 	    			
-	    			var name = data.patient.fullname;
+	    			var name = user.fullname;
     				if(name == null || name.length == 0){
-    					name = data.patient.userName;
+    					name = user.userName;
     				}
-	    			$this._html.input.patient.val(name + " - " + data.patient.email);
+    				if($this._html.input.patient.is("input")){
+    					$this._html.input.patient.val(name + " - " + user.email);
+    				} else {
+    					$this._html.input.patient.html(name + " - " + user.email);
+    				}
 	    			$this._html.input.description.val(data.description);
 	    			
 	    			var notes = "";

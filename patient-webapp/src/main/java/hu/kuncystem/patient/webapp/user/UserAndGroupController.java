@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,8 +134,8 @@ public class UserAndGroupController {
     }
 
     /**
-     * Show the user edit surface and load the default user data if we want to
-     * change the data of user. <br>
+     * Show the user edit surface and load the default user data if it is
+     * necessary (example: update an user data). <br>
      * Use: /usermanager/addUser
      * 
      * @param rowId
@@ -143,7 +144,8 @@ public class UserAndGroupController {
      *            Use: /usermanager/addUser?row=2
      */
     @RequestMapping(value = "/usermanager/addUser", method = RequestMethod.GET)
-    public String showSaveUserForm(@RequestParam(value = "row", required = false) Integer rowId, ModelMap model) {
+    public String showSaveUserForm(@RequestParam(value = "row", required = false) Integer rowId,
+            HttpServletRequest request, ModelMap model) {
         // this is an User DTO object, we can validate this later.
         UserForm userForm = new UserForm();
         // marker the ui surface that we want modify or add new user
@@ -153,7 +155,8 @@ public class UserAndGroupController {
             // because teh rowId exists so we will update an user
             // load default user data from the database
             User user = userManager.getUser(rowId);
-            if (user != null) {
+            if (user != null && (user.getId() == (long) request.getAttribute("userId")
+                    || !request.isUserInRole("ROLE_PATIENT"))) {
                 // add user data to the DTO
                 userForm.setId(user.getId());
                 userForm.setFullname(user.getFullname());
@@ -168,9 +171,15 @@ public class UserAndGroupController {
                     groups.add(group.getName());
                 }
                 userForm.setGroups(groups.toArray(new String[] {}));
+            } else {
+                model.clear();
+                return "redirect:/index";
             }
 
             model.put("modify", true);
+        } else if (request.isUserInRole("ROLE_PATIENT")) {
+            model.clear();
+            return "redirect:/index";
         }
         model.addAttribute("userForm", userForm);
 
@@ -191,7 +200,7 @@ public class UserAndGroupController {
      *            We can check the result of the validation through the object.
      */
     @RequestMapping(value = "/usermanager/addUser", method = RequestMethod.POST)
-    public String addUser(ModelMap model, @Valid UserForm userForm, BindingResult result) {
+    public String addUser(@Valid UserForm userForm, BindingResult result, ModelMap model, HttpServletRequest request) {
         if (result.hasErrors()) {
             return "useredit";
         }
@@ -237,18 +246,37 @@ public class UserAndGroupController {
                 break;
             }
             case SAVE_OK: {
-                page = "redirect:/usermanager?state=" + MESSAGES_USER_SAVE_OK;
+                if (request.isUserInRole("ROLE_PATIENT")) {
+                    model.put("message",
+                            messageSource.getMessage("user.message.save_ok", null, LocaleContextHolder.getLocale()));
+                    model.put("cls", "success");
+
+                    page = "useredit";
+                } else {
+                    page = "redirect:/usermanager?state=" + MESSAGES_USER_SAVE_OK;
+                }
                 break;
             }
             case UPDATE_OK: {
-                page = "redirect:/usermanager?state=" + MESSAGES_USER_UPDATE_OK;
+                if (request.isUserInRole("ROLE_PATIENT")) {
+                    model.put("message",
+                            messageSource.getMessage("user.message.update_ok", null, LocaleContextHolder.getLocale()));
+                    model.put("cls", "success");
+
+                    page = "useredit";
+                } else {
+                    page = "redirect:/usermanager?state=" + MESSAGES_USER_UPDATE_OK;
+                }
                 break;
             }
             default: {
-                page = "redirect:/usermanager";
+                if (request.isUserInRole("ROLE_PATIENT")) {
+                    page = "redirect:/index";
+                } else {
+                    page = "redirect:/usermanager";
+                }
                 break;
             }
-
         }
 
         return page;
@@ -274,23 +302,24 @@ public class UserAndGroupController {
 
         return page;
     }
-    
+
     @PostMapping(value = "/usermanager/userList", produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public UserListFormJsonResponse getUsers(@RequestParam (value = "query") String query) {
+    public UserListFormJsonResponse getUsers(@RequestParam(value = "query") String query) {
         UserListFormJsonResponse response = new UserListFormJsonResponse();
         response.setQuery(query);
-        
-        //searching the users and add the user data to the collection
+
+        // searching the users and add the user data to the collection
         List<User> userList = userManager.getUsersByName(query);
         String name;
-        for(User user: userList){
-            //use the full name or the user name
-            name = (user.getFullname() != null && !user.getFullname().trim().isEmpty()) ? user.getFullname() : user.getUserName();
+        for (User user : userList) {
+            // use the full name or the user name
+            name = (user.getFullname() != null && !user.getFullname().trim().isEmpty()) ? user.getFullname()
+                    : user.getUserName();
             name += " - " + user.getEmail();
             response.addUserDataToJson(user.getId(), name);
         }
-        
+
         return response;
     }
 
@@ -353,7 +382,7 @@ public class UserAndGroupController {
                 System.err.println("can't modify the user data!");
                 return STATE.DATABASE_ERROR;
             } else if (userForm.getGroups() != null) {
-                
+
                 // update user groups
                 ArrayList<String> groups = new ArrayList<String>(Arrays.asList(userForm.getGroups()));
                 if (!userGroupManager.changeUserGroup(userForm.getId(), groups)) {

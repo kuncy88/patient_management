@@ -30,6 +30,13 @@
 
 </head>
 <body>
+	<c:if test="${not empty message}">
+		<div class="col-sm-6 alert alert-${cls} fade in alert-dismissable pm-main-alert">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+	  		${message }
+		</div>
+	</c:if>
+	
 	<tiles:insertAttribute name="navbar" />
 	
 	<div class="container-fluid body-content">

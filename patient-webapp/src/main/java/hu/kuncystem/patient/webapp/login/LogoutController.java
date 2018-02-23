@@ -55,7 +55,7 @@ public class LogoutController {
             request.getSession().invalidate();
         }
         
-        if(type == null){           //if it dosen't exsist message marker then we set an default
+        if(type == null){           //if the  message marker doesn't exisst then we set an default
             type = LoginController.MESSAGE_TYPE_LOGOUT;
         }
 
