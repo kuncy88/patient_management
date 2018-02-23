@@ -99,6 +99,16 @@ public interface UserManager {
     public User getUser(String name, String password);
 
     /**
+     * Get all of users who name contains this filter word. First, it check the
+     * full name and if it is not specified then it will search in the user
+     * name.
+     * 
+     * @param filter
+     *            The filter word which is non-case sensitive.
+     */
+    public List<User> getUsersByName(String filter);
+
+    /**
      * Delete one row from the database.
      *
      * @param userId

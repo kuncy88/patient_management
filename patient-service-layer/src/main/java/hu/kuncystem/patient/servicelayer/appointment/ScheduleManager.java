@@ -1,9 +1,11 @@
 package hu.kuncystem.patient.servicelayer.appointment;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
 import hu.kuncystem.patient.pojo.appointment.Appointment;
+import hu.kuncystem.patient.servicelayer.exception.AppointmentReservedException;
 
 /**
  * @author Csaba Kun <kuncy88@gmail.com>
@@ -51,7 +53,7 @@ public interface ScheduleManager {
      *            open.
      * @param to
      *            End of filter date. If this is null then the end date is open.
-     * @return Object.List object that it is contain Appointment objects.
+     * @return Object.List object which contain Appointment objects.
      */
     public List<Appointment> getAppointments(long userId, Date from, Date to);
 
@@ -68,8 +70,7 @@ public interface ScheduleManager {
      * An appointment is copied to another day.
      *
      * @param userId
-     *            Object.User is a simple POJO object. The user whose data we
-     *            would like to copy.
+     *            The user whose data we would like to copy.
      * @param srcDate
      *            the day of copy
      * @param targetDate
@@ -77,6 +78,27 @@ public interface ScheduleManager {
      * @return It will return true for success otherwise it will return false.
      */
     public boolean reScheduleAppointment(long userId, Date srcDate, Date targetDate);
+
+    /**
+     * All of appointments of a day move to other day. It will be success if
+     * there aren't conflicts in the target date.
+     *
+     * @param userId
+     *            The user whose data we would like to copy.
+     * @param srcDate
+     *            the day of copy. It is important, do not add the time just
+     *            simple date.(format: yyyy-mm-dd)
+     * @param targetDate
+     *            target day It is important, do not add the time just simple
+     *            date.(format: yyyy-mm-dd)
+     * @return It will return true for success otherwise it will return false.
+     * @throws ParseException
+     *             The source or the target date is not correct
+     * @throws AppointmentReservedException
+     *             The movement is not possible because there are conflicts.
+     */
+    public boolean reScheduleDay(long userId, Date srcDate, Date targetDate)
+            throws ParseException, AppointmentReservedException;
 
     /**
      * Update an appointment in the database. Don't use this to change the time

@@ -1,6 +1,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 
 <script src="<c:url value="/resources/js/useredit.js" />"></script>
 
@@ -15,9 +16,7 @@
 	<form:errors path="userForm" class="alert alert-danger" element="div" />
 </c:set>
 
-<c:if test="${not empty message}">
-	<div class='alert alert-${cls}'>${message}</div>
-</c:if>
+<security:authorize access="hasRole('ROLE_PATIENT')" var="hasRolePatient"></security:authorize>
 
 <form:form class="form-horizontal useredit-form" modelAttribute="userForm" method="post">	
 	${passwordHasBindError}
@@ -92,30 +91,44 @@
 	</c:if>
 	
 	<spring:bind path="active">
-	<div class="form-group" title="<spring:message code="user.title.active"/>">
-    	<label class="control-label col-sm-2" for="active1"><spring:message code="label.active"/>:</label>
-    	<div class="col-sm-10">
-     		<label class="radio-inline"><form:radiobutton path="active" checked="checked" value="true" /><spring:message code="label.yes"/></label>
-     		<label class="radio-inline"><form:radiobutton path="active" value="false" /><spring:message code="label.no"/></label>
-    	</div>
-	</div>
+	<c:choose>
+		<c:when test="${not hasRolePatient}">
+			<div class="form-group" title="<spring:message code="user.title.active"/>">
+		    	<label class="control-label col-sm-2" for="active1"><spring:message code="label.active"/>:</label>
+		    	<div class="col-sm-10">
+		     		<label class="radio-inline"><form:radiobutton path="active" checked="checked" value="true" /><spring:message code="label.yes"/></label>
+		     		<label class="radio-inline"><form:radiobutton path="active" value="false" /><spring:message code="label.no"/></label>
+		    	</div>
+			</div>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="active" value="true" />
+		</c:otherwise>
+	</c:choose>
 	</spring:bind>
 	
 	<spring:bind path="groups">
-	<div class="form-group" title="<spring:message code="user.title.group"/>">
-    	<label class="control-label col-sm-2"><spring:message code="user.label.groups"/>:</label>
-    	<div class="col-sm-10">
-     		<div class="checkbox">
-				<label><form:checkbox path="groups" value="Admin" /><spring:message code="label.administrator"/></label>
+	<c:choose>
+		<c:when test="${not hasRolePatient}">
+			<div class="form-group" title="<spring:message code="user.title.group"/>">
+		    	<label class="control-label col-sm-2"><spring:message code="user.label.groups"/>:</label>
+		    	<div class="col-sm-10">
+		     		<div class="checkbox">
+						<label><form:checkbox path="groups" value="Admin" /><spring:message code="label.administrator"/></label>
+					</div>
+					<div class="checkbox">
+						<label><form:checkbox path="groups" value="Doctor" class="group-just-one" /><spring:message code="label.doctor"/></label>
+					</div>
+					<div class="checkbox">
+						<label><form:checkbox path="groups" value="Patient" class="group-just-one" /><spring:message code="label.patient"/></label>
+					</div>
+		    	</div>
 			</div>
-			<div class="checkbox">
-				<label><form:checkbox path="groups" value="Doctor" class="group-just-one" /><spring:message code="label.doctor"/></label>
-			</div>
-			<div class="checkbox">
-				<label><form:checkbox path="groups" value="Patient" class="group-just-one" /><spring:message code="label.patient"/></label>
-			</div>
-    	</div>
-	</div>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="groups" value="Patient" />
+		</c:otherwise>
+	</c:choose>
 	</spring:bind>
 	
 	<form:hidden path="id" />

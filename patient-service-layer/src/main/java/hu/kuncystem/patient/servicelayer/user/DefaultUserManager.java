@@ -80,6 +80,14 @@ public class DefaultUserManager implements UserManager {
         return userDao.getUser(name, password);
     }
 
+    public List<User> getUsersByName(String filter) {
+        try {
+            return userDao.getUsersFilterByName(filter);
+        } catch (DatabaseException e) {
+            return new ArrayList<User>();
+        }
+    }
+
     public boolean removeUser(long userId) {
         User user = userFactory.getUser(UserFactory.DEFAULT);
         user.setId(userId);

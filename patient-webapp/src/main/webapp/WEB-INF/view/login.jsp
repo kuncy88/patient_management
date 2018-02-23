@@ -2,9 +2,6 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
  <div class="login-container">
- 	<c:if test="${not empty message}">
-		<div class="alert alert-${cls}" role="alert">${message }</div>	
-	</c:if>
 	<form name="loginForm" action="<c:url value='/j_spring_security_check' />" method="POST" >
 			<h1 class="text-center">Patient managment</h1>
 			<div class="alert alert-danger form-error"></div>

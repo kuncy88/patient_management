@@ -21,6 +21,12 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<!-- jackson api -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.9.3</version>
+		</dependency>
 
 		<!-- jstl lib -->
 		<dependency>
@@ -53,6 +59,11 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
+			<version>${org.springframework.security.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
 			<version>${org.springframework.security.version}</version>
 		</dependency>
 

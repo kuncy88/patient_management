@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 import hu.kuncystem.patient.webapp.validator.PasswordsEqualConstraint;
 
 /**
- * this for comment of classes
+ * This is a DTO object which we use that validate and use an form data.
  *
  * @author Csaba Kun <kuncy88@gmail.com>
  * @date 2018. febr. 4.

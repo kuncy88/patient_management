@@ -19,6 +19,7 @@ import hu.kuncystem.patient.pojo.user.User;
 public interface AppointmentDao {
     // used date format
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String TIME_FORMAT = "HH:mm:ss";
     public static final String DATE_FORMAT_WITHOUT_TIME = "yyyy-MM-dd";
 
     /**
