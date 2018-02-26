@@ -18,6 +18,17 @@
 		<put-attribute name="body" value="/WEB-INF/view/errors/403.jsp" />
 	</definition>
 	
+	<definition name="404" extends="common">
+		<put-attribute name="title" value="PatientManagement - Page not found" />
+		<put-attribute name="body" value="/WEB-INF/view/errors/404.jsp" />
+	</definition>
+	
+	<definition name="500" extends="common">
+		<put-attribute name="title" value="PatientManagement - Hoooops, everythings wrong!" />
+		<put-attribute name="body" value="/WEB-INF/view/errors/500.jsp" />
+		<put-attribute name="footer" value="" />
+	</definition>
+	
 	<definition name="message" extends="common">
 		<put-attribute name="title" value="PatientManagement - Message" />
 		<put-attribute name="body" value="/WEB-INF/view/message.jsp" />

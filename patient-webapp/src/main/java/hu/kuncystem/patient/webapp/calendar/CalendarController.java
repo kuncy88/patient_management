@@ -68,7 +68,7 @@ public class CalendarController {
             BindingResult result) {
 
         AppointmentSaveJsonRespone response = new AppointmentSaveJsonRespone();
-
+        
         if (result.hasErrors()) { // it was any error
 
             // Get all of error messages
