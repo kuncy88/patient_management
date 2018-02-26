@@ -86,7 +86,7 @@
         				</label>
         				<div class="col-sm-10">
       						<div class="input-group">
-      							<input class="form-control" id="patient" 
+      							<input class="form-control" id="patient" autocomplete="off" 
         						placeholder="<spring:message code="calendar.label.patient.placeholder" />" />
       							<span class="input-group-btn">
 	        						<button type="button" id="add_new_user" class="btn btn-info cPointer" 

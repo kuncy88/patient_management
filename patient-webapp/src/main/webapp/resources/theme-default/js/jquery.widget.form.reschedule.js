@@ -81,6 +81,8 @@ $.widget("custom.reScheduleFormHandler", {
 						}
 					}
 				}
+			}).fail(function(error){
+				alert(error.status + " (" + error.statusText + ")");
 			});
 		});
 	},

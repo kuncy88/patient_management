@@ -64,7 +64,7 @@ public class H2Config {
         simpleDriverDataSource.setUsername(DB_USER);
         simpleDriverDataSource.setPassword(DB_PASSWORD);
         simpleDriverDataSource
-                .setUrl("jdbc:h2:" + DB_NAME + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE");
+                .setUrl("jdbc:h2:file:" + DB_NAME + ";FILE_LOCK=NO;DB_CLOSE_ON_EXIT=FALSE;MVCC=TRUE");
 
         // check the databse file(exsits or not)
         File file = new File(DB_NAME.replace("~/", System.getProperty("user.home") + File.separator) + ".mv.db");

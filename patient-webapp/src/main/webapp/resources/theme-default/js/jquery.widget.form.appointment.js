@@ -94,9 +94,11 @@ $.widget("custom.appointmentFormHandler", {
 							$("#" + i + "_error").show();
 						});
 					}
-					
-					$this._html.btn.save.prop("disabled", false);
 				}
+			}).fail(function(error){
+				alert(error.status + " (" + error.statusText + ")");
+			}).always(function(){
+				$this._html.btn.save.prop("disabled", false);
 			});			
 		});
 	},
@@ -121,8 +123,11 @@ $.widget("custom.appointmentFormHandler", {
 		        	} else {								//hoops, there is any problem
 		        		alert(localization['alert.text.appointment.delete_error'])
 		        	}
-		        	$this._html.btn.remove.attr("disabled", false);
-		        });
+		        }).fail(function(error){
+					alert(error.status + " (" + error.statusText + ")");
+				}).always(function(){
+					$this._html.btn.remove.attr("disabled", false);
+				});
 			} else {
 				$this._html.btn.remove.attr("disabled", false);
 			}
@@ -284,7 +289,10 @@ $.widget("custom.appointmentFormHandler", {
 	    			alert(localization['alert.text.load.failed']);
 	    		}
 	    	}
-	    );
+	    ).fail(function(error){
+			alert(error.status + " (" + error.statusText + ")");
+			$this.close();
+		});
 	},
 	/**
 	 * Show the window which we can handle the appointments

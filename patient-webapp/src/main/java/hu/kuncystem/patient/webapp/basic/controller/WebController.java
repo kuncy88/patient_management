@@ -63,4 +63,28 @@ public class WebController {
     public String about() {
         return "about";
     }
+    
+    /**
+     * Error page: 403
+     * */
+    @RequestMapping(value = "/403", method = RequestMethod.GET)
+    public String error403() {
+        return "403";
+    }
+    
+    /**
+     * Error page: 404
+     * */
+    @RequestMapping(value = "/404", method = RequestMethod.GET)
+    public String error404() {
+        return "404";
+    }
+    
+    /**
+     * Error page: 500
+     * */
+    @RequestMapping(value = "/500", method = RequestMethod.GET)
+    public String error500() {
+        return "500";
+    }
 }
