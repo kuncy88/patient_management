@@ -153,10 +153,12 @@ public class JDBCAppointmentDao implements AppointmentDao {
 
         // check the user type so we can filter(doctor or patient
         // appointment).
-        if (userFactory.isPatient(user)) {
-            text.append("at.patient_id = ?");
-        } else {
-            text.append("at.doctor_id = ?");
+        if (user != null) {
+            if (userFactory.isPatient(user)) {
+                text.append("at.patient_id = ?");
+            } else {
+                text.append("at.doctor_id = ?");
+            }
         }
 
         // date filter from if it is necessary
@@ -176,7 +178,11 @@ public class JDBCAppointmentDao implements AppointmentDao {
         // replace the joker characters to concrete sql
         String sql = SQL_SELECT_APPOINTMENT.replace("$1$", text);
         try {
-            return jdbc.query(sql, new AppointmentRowMapper(), user.getId());
+            if (user != null) {
+                return jdbc.query(sql, new AppointmentRowMapper(), user.getId());
+            } else {
+                return jdbc.query(sql, new AppointmentRowMapper());
+            }
         } catch (DataAccessException e) {
             throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }

@@ -95,6 +95,12 @@ $.widget("custom.reScheduleFormHandler", {
 		this._html.input.newDate = this._html.form.find("#newDate");
 		this._html.input.oldDate = this._html.form.find("#oldDate");
 		
+		this._html.input.userId = this._html.form.find("[name='userId']");
+		if(hasRoleAdmin){
+			//the -1 means that we will move all of the event, there aren't user filter
+			this._html.input.userId.val("-1");
+		}
+		
 		this._html.calendar = $('#calendar');
 		
 		this._initPicker();

@@ -51,7 +51,8 @@ public interface AppointmentDao {
      *
      * @param user
      *            Object.User is a simple POJO object. This object contains the
-     *            data of user whose appointment is necessary.
+     *            data of user whose appointment is necessary. If it is null
+     *            then we don't filter the user.
      * @param dateFrom
      *            Begin of filter date. If this is null then the begin date is
      *            open.

@@ -1,6 +1,7 @@
 package hu.kuncystem.patient.servicelayer.user;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,22 @@ public class DefaultUserManager implements UserManager {
     public List<User> getAllUsers(int limit, int offset, String order) {
         try {
             return userDao.getAllUsers(limit, offset, order);
+        } catch (DatabaseException e) {
+            return new ArrayList<User>();
+        }
+    }
+
+    public List<User> getFreeDoctorsByName(String filter, Date requiredDate) {
+        try {
+            return userDao.getFreeUsersByNameFromGroup(filter, "Doctor", requiredDate);
+        } catch (DatabaseException e) {
+            return new ArrayList<User>();
+        }
+    }
+
+    public List<User> getFreePatientsByName(String filter, Date requiredDate) {
+        try {
+            return userDao.getFreeUsersByNameFromGroup(filter, "Patient", requiredDate);
         } catch (DatabaseException e) {
             return new ArrayList<User>();
         }
