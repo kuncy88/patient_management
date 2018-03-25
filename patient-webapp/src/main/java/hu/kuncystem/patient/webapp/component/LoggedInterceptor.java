@@ -44,6 +44,7 @@ public class LoggedInterceptor extends HandlerInterceptorAdapter {
                 }
                 request.setAttribute("userFullname", name);
                 request.setAttribute("userId", user.getId());
+                request.setAttribute("email", user.getEmail());
             }
         }
 

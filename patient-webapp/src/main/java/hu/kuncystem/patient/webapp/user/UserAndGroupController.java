@@ -1,5 +1,8 @@
 package hu.kuncystem.patient.webapp.user;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import hu.kuncystem.patient.dao.appointment.AppointmentDao;
 import hu.kuncystem.patient.dao.user.JDBCUserDao;
 import hu.kuncystem.patient.pojo.user.User;
 import hu.kuncystem.patient.pojo.user.UserGroup;
@@ -305,19 +309,39 @@ public class UserAndGroupController {
 
     @PostMapping(value = "/usermanager/userList", produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public UserListFormJsonResponse getUsers(@RequestParam(value = "query") String query) {
+    public UserListFormJsonResponse getUsers(@RequestParam(value = "query") String query,
+            @RequestParam(value = "group", required = false) String group,
+            @RequestParam(value = "datetime", required = false) String datetime) {
         UserListFormJsonResponse response = new UserListFormJsonResponse();
         response.setQuery(query);
 
+        DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT);
         // searching the users and add the user data to the collection
-        List<User> userList = userManager.getUsersByName(query);
+        List<User> userList = null;
+        if (group == null) {
+            userList = userManager.getUsersByName(query);
+        } else if (group.equals("Doctor")) {
+            try {
+                userList = userManager.getFreeDoctorsByName(query, formatter.parse(datetime));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else if (group.equals("Patient")) {
+            try {
+                userList = userManager.getFreePatientsByName(query, formatter.parse(datetime));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
         String name;
-        for (User user : userList) {
-            // use the full name or the user name
-            name = (user.getFullname() != null && !user.getFullname().trim().isEmpty()) ? user.getFullname()
-                    : user.getUserName();
-            name += " - " + user.getEmail();
-            response.addUserDataToJson(user.getId(), name);
+        if (userList != null) {
+            for (User user : userList) {
+                // use the full name or the user name
+                name = (user.getFullname() != null && !user.getFullname().trim().isEmpty()) ? user.getFullname()
+                        : user.getUserName();
+                name += " - " + user.getEmail();
+                response.addUserDataToJson(user.getId(), name);
+            }
         }
 
         return response;

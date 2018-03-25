@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +88,13 @@ public class JDBCUserDao implements UserDao {
             + "FROM users u " + "LEFT JOIN user_group_relation ugr ON (ugr.users_id = u.id)"
             + "LEFT JOIN user_group ug ON (ug.id = ugr.user_group_id) " + "GROUP BY u.id";
 
+    private static final String SQL_FIND_USER_FILTER_GROUP_AND_NAME = "SELECT u.*, ug.name AS group_name "
+            + "FROM users u " + "INNER JOIN user_group_relation ugr ON (ugr.users_id = u.id) "
+            + "INNER JOIN user_group ug ON (ug.id = ugr.user_group_id AND ug.name = ?) "
+            + "LEFT JOIN appointment_table at ON (at.$FIELD$ = u.id AND appointment = ?) "
+            + "WHERE LOWER(COALESCE(u.fullname, u.user_name)) LIKE ? AND at.id IS NULL "
+            + "ORDER BY COALESCE(u.fullname, u.user_name);";
+
     private static final String SQL_INSERT = "INSERT INTO users (user_name, passw, fullname, email, active) VALUES (?, ?, ?, ?, ?);";
 
     private static final String SQL_UPDATE = "UPDATE users SET user_name = ?, passw = ?, fullname = ?, email = ?, active = ? WHERE id = ?;";
@@ -118,6 +126,27 @@ public class JDBCUserDao implements UserDao {
         }
         try {
             return jdbc.query(sql, new UserRowMapper());
+        } catch (DataAccessException e) {
+            throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
+        }
+    }
+
+    public List<User> getFreeUsersByNameFromGroup(String filter, String group, Date date) {
+        filter = "%" + filter + "%";
+        // get the field name which we want to filter
+        String field = "";
+        if (group == "Doctor") { // if we select doctors
+            field = "doctor_id";
+        } else if (group == "Patient") {// if we select patients
+            field = "patient_id";
+        }
+
+        DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT);
+
+        // get free user in this "appointment time"
+        String sql = SQL_FIND_USER_FILTER_GROUP_AND_NAME.replace("$FIELD$", field);
+        try {
+            return jdbc.query(sql, new UserRowMapper(), group, formatter.format(date), filter.toLowerCase());
         } catch (DataAccessException e) {
             throw new DatabaseException(DatabaseException.STRING_DATA_ACCESS_EXCEPTION + " " + sql, e);
         }

@@ -28,12 +28,22 @@ $.widget("custom.appointmentFormHandler", {
 		//the controller buttons
 		this._html.btn.remove = $("button.appointment-remove");
 		this._html.btn.save = $("button.appointment-submit");
-		this._html.btn.addUser = this._html.form.find("#add_new_user");
+		//add user button next to doctor input field
+		this._html.btn.addDoctorUser = this._html.form.find(".add-new-doctor");
+		//add user button next to patient input field
+		this._html.btn.addPatientUser = this._html.form.find(".add-new-patient");
+		//all of add user button
+		this._html.btn.addUser = this._html.form.find(".add-new-user");
 		this._html.btn.addUser.data("text", this._html.btn.addUser.html());
 		this._html.btn.addUser.data("title", this._html.btn.addUser.attr("title"));
 		
 		this._html.input.patient = this._html.form.find("input#patient");
 		this._html.input.patientId = this._html.form.find("input[name='patientId']");
+		this._html.input.doctor = this._html.form.find("input#doctor");
+		this._html.input.doctorId = this._html.form.find("input[name='doctorId']");
+		
+		this._html.input.acuser = this._html.form.find(".ac-user-list");
+		
 		this._html.input.appointmentId = this._html.form.find("input[name='appointmentId']");
 		this._html.input.csrf = this._html.form.find("#csrf");
 		this._html.input.startTime = this._html.form.find("#appointment_start");
@@ -47,7 +57,7 @@ $.widget("custom.appointmentFormHandler", {
 		//init the events
 		this._initSubmitEvent();
 		this._iniRemoveEvent();
-		this._initPatientAutocomplete();
+		this._initUserAutocomplete();
 		this._initAddNewUserEvent();
 	},
 	//init the event when the user click the form submit button
@@ -135,16 +145,19 @@ $.widget("custom.appointmentFormHandler", {
 	},
 	//init the autocomplete event, so the user can filter the patient by name
 	//just you have to write into the input element.
-	_initPatientAutocomplete: function(){
+	_initUserAutocomplete: function(){
 		var form = this._html.form;
 		var $this = this;
 	
-		this._html.input.patient.typeahead({
+		this._html.input.acuser.typeahead({
 			displayKey: 'name',
 			source:  function (query, process) {
+				var group = $(this.$element[0]).data("group");
 				//get user list by name
 				$.post('/usermanager/userList', { 
 		        		query: query,
+		        		group: group,
+		        		datetime: $this._html.input.startTime.val(),
 		        		_csrf: $this._html.input.csrf.val()
 		        	}, function (data) {
 		        		if(data != null && data.userList != null){	
@@ -157,14 +170,26 @@ $.widget("custom.appointmentFormHandler", {
 		        );
 			},
 			updater: function(item) {
+				var group = $(this.$element[0]).data("group");
+				
 				//add the user id to the hidden element
-				$this._html.input.patientId.val(item.id);
+				if(group == "Doctor"){
+					$this._html.input.doctorId.val(item.id);
+				} else if (group == "Patient"){
+					$this._html.input.patientId.val(item.id);
+				}
 		        return item;
 		    }
 		}).on("input", function(){
 			//if the user remove the text from the input element then we remove the hidden variable
 			if($(this).val().length == 0){
-				$this._html.input.patientId.val("");
+				var group = $(this).data("group");
+				
+				if(group == "Doctor"){
+					$this._html.input.doctorId.val("");
+				} else if (group == "Patient"){
+					$this._html.input.patientId.val("");
+				}
 			}
 		});
 	},
@@ -192,6 +217,13 @@ $.widget("custom.appointmentFormHandler", {
 		        week: { dow: 1 }
 		    }),
 		});
+		
+		//if the user is doctor then auto load his/her name and id into the input field
+		if(hasRoleDoctor){
+			this._html.input.doctorId.val(loginUser);
+			this._html.input.doctor.val(loginUserData.name + " - " + loginUserData.email);
+		}
+		
 		//Set the visible and invisible element. It is depend on the selected mode.
 		if(this._var.mode == "new"){
 			this._html.btn.save.show();
@@ -200,9 +232,22 @@ $.widget("custom.appointmentFormHandler", {
 			this._html.input.description.removeClass("readonly").addClass("editable");
 			this._html.input.tags.removeClass("readonly").addClass("editable");
 			this._html.input.patient.removeClass("readonly").addClass("editable");
-			this._html.btn.addUser.prop("disabled", false)
-				.html(this._html.btn.addUser.data("text"))
-				.attr("title", this._html.btn.addUser.data("title"));
+			//if user is admin then he/she can change the doctor
+			if(!hasRoleAdmin){
+				this._html.input.doctor.removeClass("editable").addClass("readonly");
+				this._html.btn.addDoctorUser.prop("disabled", true)
+					.html("&nbsp;")
+					.attr("title", "");
+			}else{
+				this._html.input.doctor.removeClass("readonly").addClass("editable");
+				this._html.btn.addDoctorUser.prop("disabled", false)
+					.html(this._html.btn.addDoctorUser.data("text"))
+					.attr("title", this._html.btn.addDoctorUser.data("title"));
+			}
+			
+			this._html.btn.addPatientUser.prop("disabled", false)
+				.html(this._html.btn.addPatientUser.data("text"))
+				.attr("title", this._html.btn.addPatientUser.data("title"));
 			
 			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', false);
 		} else if(this._var.mode == 'update'){
@@ -212,9 +257,21 @@ $.widget("custom.appointmentFormHandler", {
 			this._html.input.description.removeClass("readonly").addClass("editable");
 			this._html.input.tags.removeClass("readonly").addClass("editable");
 			this._html.input.patient.removeClass("readonly").addClass("editable");
-			this._html.btn.addUser.prop("disabled", false)
-				.html(this._html.btn.addUser.data("text"))
-				.attr("title", this._html.btn.addUser.data("title"));
+			//if the user is admin then we enable the changes otherwise this field will be disabled.
+			if(!hasRoleAdmin){
+				this._html.input.doctor.removeClass("editable").addClass("readonly");
+				this._html.btn.addDoctorUser.prop("disabled", true)
+					.html("&nbsp;")
+					.attr("title", "");
+			}else{
+				this._html.input.doctor.removeClass("readonly").addClass("editable");
+				this._html.btn.addDoctorUser.prop("disabled", false)
+					.html(this._html.btn.addDoctorUser.data("text"))
+					.attr("title", this._html.btn.addDoctorUser.data("title"));
+			}
+			this._html.btn.addPatientUser.prop("disabled", false)
+				.html(this._html.btn.addPatientUser.data("text"))
+				.attr("title", this._html.btn.addPatientUser.data("title"));
 			
 			this._html.input.startTime.parent().datetimepicker('ignoreReadonly', true);
 		} else if(this._var.mode == 'show'){
@@ -223,6 +280,7 @@ $.widget("custom.appointmentFormHandler", {
 			
 			this._html.input.description.addClass("readonly").removeClass("editable");
 			this._html.input.tags.addClass("readonly").removeClass("editable");
+			this._html.input.doctor.addClass("readonly").removeClass("editable");
 			this._html.input.patient.addClass("readonly").removeClass("editable");
 			this._html.btn.addUser.prop("disabled", true)
 				.html("&nbsp;")
@@ -248,6 +306,9 @@ $.widget("custom.appointmentFormHandler", {
 	_onClose: function(){
 		this._html.form[0].reset();
 		this._html.input.patientId.val("0");
+		if(hasRoleAdmin){
+			this._html.input.doctorId.val("0");
+		}
 		this._html.input.appointmentId.val("");
 	},
 	//load an appointment data from the database
@@ -259,24 +320,40 @@ $.widget("custom.appointmentFormHandler", {
 	    		_csrf: this._html.form.find("#csrf").val()
 	    	}, function (data) {
 	    		if(data != null){	//set the value of form element
-	    			var user = data.patient;
+	    			//console.log(data);
+	    			/*var user = data.patient;
 	    			if(hasRolePatient && $this._var.mode == 'show'){
 	    				user = data.doctor;
-	    			}
+	    			}*/
+	    			//set all of necessary id
+	    			$this._html.input.doctorId.val(data.doctor.id);
 	    			$this._html.input.patientId.val(data.patient.id);
 	    			$this._html.input.appointmentId.val(data.id);
 	    			
-	    			var name = user.fullname;
-    				if(name == null || name.length == 0){
-    					name = user.userName;
+	    			//show the patient name
+	    			var viewPatientName = data.patient.fullname;
+	    			if(viewPatientName == null || viewPatientName.length == 0){
+	    				viewPatientName = data.patient.userName;
+	    			}
+	    			
+	    			//show the doctor name
+	    			var viewDoctorName = data.doctor.fullname;
+    				if(viewDoctorName == null || viewDoctorName.length == 0){
+    					viewDoctorName = data.doctor.userName;
     				}
+    				
     				if($this._html.input.patient.is("input")){
-    					$this._html.input.patient.val(name + " - " + user.email);
+    					$this._html.input.doctor.val(viewDoctorName + " - " + data.doctor.email);
+    					$this._html.input.patient.val(viewPatientName + " - " + data.patient.email);
     				} else {
-    					$this._html.input.patient.html(name + " - " + user.email);
+    					$this._html.input.doctor.html(viewDoctorName + " - " + data.doctor.email);
+    					$this._html.input.patient.html(viewPatientName + " - " + data.patient.email);
     				}
+    				
+    				//show description
 	    			$this._html.input.description.val(data.description);
 	    			
+	    			//show all notes
 	    			var notes = "";
 	    			if(data.notes != null && data.notes.length > 0 && data.notes[0] != ""){
 	    				notes = data.notes.join(" ");

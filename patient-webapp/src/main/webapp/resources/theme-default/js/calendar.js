@@ -76,7 +76,7 @@ $(document).ready(function() {
 	        		_csrf: $("#csrf").val(),
 	        		from: start.format(dateformat),
 	        		to: end.format(dateformat),
-	        		userId: loginUser
+	        		userId: (hasRoleAdmin == true) ? -1 : loginUser
 	        	},
 	        	success: function(data){
 	        		if(data != null){

@@ -1,5 +1,6 @@
 package hu.kuncystem.patient.dao.user;
 
+import java.util.Date;
 import java.util.List;
 
 import hu.kuncystem.patient.dao.exception.DatabaseException;
@@ -42,6 +43,23 @@ public interface UserDao {
      *             if the query fails
      */
     public List<User> getAllUsers(int limit, int offset, String order);
+
+    /**
+     * Get all of users by usernamer or fullname who are free on required time.
+     * It will get just those user who are in the group which we add in param.
+     *
+     * @param filter
+     *            Username filter.
+     * @param group
+     *            From which we select the users
+     * @param date
+     *            Required time where the user haven't insterted yet.
+     * 
+     * @return Object.List object which contains User objects.
+     * @throws DatabaseException
+     *             if the query fails
+     */
+    public List<User> getFreeUsersByNameFromGroup(String filter, String group, Date date) throws DatabaseException;
 
     /**
      * Get one row from the database.

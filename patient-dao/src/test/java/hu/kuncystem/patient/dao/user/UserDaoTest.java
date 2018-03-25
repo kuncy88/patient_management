@@ -2,6 +2,10 @@ package hu.kuncystem.patient.dao.user;
 
 import static org.junit.Assert.*;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -14,8 +18,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import hu.kuncystem.patient.dao.H2Config;
+import hu.kuncystem.patient.dao.appointment.AppointmentDao;
+import hu.kuncystem.patient.dao.exception.DatabaseException;
 import hu.kuncystem.patient.pojo.user.User;
 import hu.kuncystem.patient.pojo.user.UserFactory;
+import hu.kuncystem.patient.pojo.user.UserGroup;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 
@@ -50,6 +58,10 @@ public class UserDaoTest {
     @Qualifier(value = "JDBCUserDao")
     private UserDao userDao;
 
+    @Autowired
+    @Qualifier(value = "JDBCUserGroupDao")
+    private UserGroupDao userGroupDao;
+
     @Test
     public void stage1_schouldSuccessfullyWhenUserDaoVariableContainJDBCUserDaoObject() {
         assertThat(userDao, instanceOf(JDBCUserDao.class));
@@ -59,6 +71,10 @@ public class UserDaoTest {
     public void stage2_schouldCreateUserSuccessfullyWhenUserDidNotExsist() {
         user = userDao.saveUser(user);
         assertNotNull(user);
+        // add the user to the doctors group
+        UserGroup group = userGroupDao.getUserGroup(2);
+        userGroupDao.saveUserGroupRelation(group, user);
+
         assertTrue("new user create failed", user.getId() > 0);
     }
 
@@ -92,6 +108,20 @@ public class UserDaoTest {
     }
 
     @Test
+    public void stage34_schouldGetFreeDoctorByName() {
+        // get user by name
+        DateFormat formatter = new SimpleDateFormat(AppointmentDao.DATE_FORMAT);
+        try {
+            assertTrue(userDao.getFreeUsersByNameFromGroup("eSz", "Doctor", formatter.parse("2018-01-01 02:00:00"))
+                    .size() > 0);
+        } catch (DatabaseException e) {
+            fail();
+        } catch (ParseException e) {
+            fail();
+        }
+    }
+
+    @Test
     public void stage4_schouldGetUserDataWhenUserExsitsByNameAndPassword() {
         user = userDao.getUser("teszt", "abcd12345");
         assertEquals("test1@domain.com", user.getEmail());
@@ -99,6 +129,10 @@ public class UserDaoTest {
 
     @Test
     public void stage5_schouldDeleteSuccessfullyWhenUserExsist() {
+        // delete user from the doctor group
+        UserGroup group = userGroupDao.getUserGroup(2);
+        userGroupDao.deleteUserGroupRelation(group, user);
+
         assertTrue(userDao.deleteUser(user));
     }
 }

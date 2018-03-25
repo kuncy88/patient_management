@@ -77,19 +77,61 @@
       		</div>
       		<div class="modal-body">
         		<form class="form-horizontal appointment-form" action="/mycalendar/saveAppointment" method="post">
-        			<div class="error-container form-input-error" id="doctorId_error">
-						<spring:message code='appointmentForm.error.doctorId' />
-					</div>
+					<div class='form-group'>
+        				<label class="control-label col-sm-2" for="appointment_start">
+        					<spring:message code="calendar.label.appointment" />:
+        				</label>
+        				<div class="col-sm-5">
+        					<div class="input-group">
+	        					<input class="form-control" type="datetime" name="startTime" id="appointment_start" readonly />
+	        					<span class="input-group-addon cPointer">
+			                    	<span class="glyphicon glyphicon-calendar" title="<spring:message code="calendar.title.opencalendar" />" ></span>
+			                    </span>
+		                    </div>
+		                    <div class="error-container form-input-error" id="startTime_error">
+	    						<spring:message code='appointmentForm.error.startTime' />
+	    					</div>
+        				</div>
+        			</div>
+        			
+        			<div class='form-group'>
+        				<label class="control-label col-sm-2" for="doctor">
+        					<spring:message code="calendar.label.doctor" />:
+        				</label>
+        				<div class="col-sm-10">
+      						<div class="input-group">
+      							<input 
+      								class="form-control ac-user-list" 
+      								data-group="Doctor" 
+      								id="doctor" 
+      								autocomplete="off" 
+        							placeholder="<spring:message code="calendar.label.doctor.placeholder" />" />
+      							<span class="input-group-btn">
+	        						<button type="button" class="btn btn-info cPointer add-new-user add-new-doctor" 
+	        							data-href="/usermanager/addUser" 
+	        							title="<spring:message code="calendar.title.addpatient" />">
+	        							
+		        						<spring:message code="label.add" />
+		        						&nbsp;<span class="glyphicon glyphicon-new-window"></span>
+		        					</button>
+	        					</span>
+      						</div>
+      						<div class="error-container form-input-error" id="doctorId_error">
+      							<spring:message code='appointmentForm.error.doctorId' />
+      						</div>
+        				</div>
+        			</div>
+        			
         			<div class='form-group'>
         				<label class="control-label col-sm-2" for="patient">
         					<spring:message code="calendar.label.patient" />:
         				</label>
         				<div class="col-sm-10">
       						<div class="input-group">
-      							<input class="form-control" id="patient" autocomplete="off" 
+      							<input class="form-control ac-user-list" data-group="Patient" id="patient" autocomplete="off" 
         						placeholder="<spring:message code="calendar.label.patient.placeholder" />" />
       							<span class="input-group-btn">
-	        						<button type="button" id="add_new_user" class="btn btn-info cPointer" 
+	        						<button type="button" class="btn btn-info cPointer add-new-user add-new-patient" 
 	        							data-href="/usermanager/addUser" 
 	        							title="<spring:message code="calendar.title.addpatient" />">
 	        							
@@ -139,28 +181,11 @@
         				</div>
         			</div>
         			
-        			<div class='form-group'>
-        				<label class="control-label col-sm-2" for="appointment_start">
-        					<spring:message code="calendar.label.appointment" />:
-        				</label>
-        				<div class="col-sm-5">
-        					<div class="input-group">
-	        					<input class="form-control" type="datetime" name="startTime" id="appointment_start" readonly />
-	        					<span class="input-group-addon cPointer">
-			                    	<span class="glyphicon glyphicon-calendar" title="<spring:message code="calendar.title.opencalendar" />" ></span>
-			                    </span>
-		                    </div>
-		                    <div class="error-container form-input-error" id="startTime_error">
-	    						<spring:message code='appointmentForm.error.startTime' />
-	    					</div>
-        				</div>
-        			</div>
-        			
         			<input class="form-control" type="hidden" name="endTime" id="appointment_end" readonly />
         			
         			<input type="hidden" name="appointmentId" value="0" />
         			<input type="hidden" name="patientId" value="0" />
-        			<input type="hidden" name="doctorId" value="${userId}" />
+        			<input type="hidden" name="doctorId" value="0" />
         			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" id="csrf" />
         		</form>
       		</div>
@@ -183,7 +208,9 @@
 	</div>
 </div>
 
+<security:authorize access="hasRole('ROLE_DOCTOR')" var="hasRoleDoctor"></security:authorize>
 <security:authorize access="hasRole('ROLE_PATIENT')" var="hasRolePatient"></security:authorize>
+<security:authorize access="hasRole('ROLE_ADMIN')" var="hasRoleAdmin"></security:authorize>
 <script type="text/javascript">
 	var localization = new Array();
 	localization['calendar.form.title.new'] = "<spring:message code='calendar.form.title.new' />";
@@ -200,5 +227,12 @@
 	localization['confirm.text.appointment.delete'] = "<spring:message code='confirm.text.appointment.delete' />";
 	
 	var loginUser = "${userId}";
+	var loginUserData = {
+		name: "${userFullname}",
+		email: "${email}"
+	};
+	
+	var hasRoleDoctor = ('${hasRoleDoctor}' == "true");
 	var hasRolePatient = ('${hasRolePatient}' == "true");
+	var hasRoleAdmin = ('${hasRoleAdmin}' == "true");
 </script>

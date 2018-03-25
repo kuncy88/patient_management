@@ -1,5 +1,6 @@
 package hu.kuncystem.patient.servicelayer.user;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,30 @@ public interface UserManager {
     public List<User> getAllUsers(int limit, int offset, String order);
 
     /**
+     * Get all of doctors who are free on required date.
+     * 
+     * @param filter
+     *            Username or fullname filter
+     * @param requiredDate
+     *            This is a date where we want to select the free doctors.
+     * 
+     * @return Object.List object which contains User objects.
+     */
+    public List<User> getFreeDoctorsByName(String filter, Date requiredDate);
+
+    /**
+     * Get all of patients who are free on required date.
+     * 
+     * @param filter
+     *            Username or fullname filter
+     * @param requiredDate
+     *            This is a date where we want to select the free patients.
+     * 
+     * @return Object.List object which contains User objects.
+     */
+    public List<User> getFreePatientsByName(String filter, Date requiredDate);
+
+    /**
      * Get one user's data from the database.
      *
      * @param id
@@ -105,6 +130,8 @@ public interface UserManager {
      * 
      * @param filter
      *            The filter word which is non-case sensitive.
+     * 
+     * @return Object.List object which contains User objects.
      */
     public List<User> getUsersByName(String filter);
 
